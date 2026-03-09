@@ -6,7 +6,12 @@ import { getStoresData } from "@/lib/blob";
 const EMPTY_DATA: StoresData = { updatedAt: "", stores: [] };
 
 export default async function Home() {
-  const data = (await getStoresData()) ?? EMPTY_DATA;
+  let data: StoresData;
+  try {
+    data = (await getStoresData()) ?? EMPTY_DATA;
+  } catch {
+    data = EMPTY_DATA;
+  }
 
   return (
     <Suspense>
