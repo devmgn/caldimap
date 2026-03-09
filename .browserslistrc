@@ -1,0 +1,5 @@
+# Browserslist configuration
+# @see https://github.com/browserslist/browserslist
+
+last 3 major versions
+not dead
