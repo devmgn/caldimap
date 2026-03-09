@@ -124,15 +124,16 @@ function StoreMarker({
 }
 
 function useCurrentPosition() {
-  const hasGeolocation =
-    typeof window !== "undefined" && "geolocation" in navigator;
   const [position, setPosition] = useState<{ lat: number; lng: number } | null>(
     null,
   );
-  const [resolved, setResolved] = useState(!hasGeolocation);
+  const [resolved, setResolved] = useState(false);
 
   useEffect(() => {
-    if (!hasGeolocation) {
+    if (!("geolocation" in navigator)) {
+      queueMicrotask(() => {
+        setResolved(true);
+      });
       return;
     }
     navigator.geolocation.getCurrentPosition(
@@ -144,7 +145,7 @@ function useCurrentPosition() {
         setResolved(true);
       },
     );
-  }, [hasGeolocation]);
+  }, []);
 
   return { position, resolved };
 }
