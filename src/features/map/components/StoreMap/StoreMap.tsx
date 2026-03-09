@@ -124,7 +124,8 @@ function StoreMarker({
 }
 
 function useCurrentPosition() {
-  const hasGeolocation = typeof window !== "undefined" && "geolocation" in navigator;
+  const hasGeolocation =
+    typeof window !== "undefined" && "geolocation" in navigator;
   const [position, setPosition] = useState<{ lat: number; lng: number } | null>(
     null,
   );
