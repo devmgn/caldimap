@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-
 import storesData from "@/data/stores.json";
 import { MapPage } from "@/features/map";
 

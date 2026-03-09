@@ -19,7 +19,11 @@ export function SbProvider({ children }: React.PropsWithChildren) {
               {Error.isError(error) && (
                 <p className="mt-4 text-red-600">{error.message}</p>
               )}
-              <button className="mt-4" type="button" onClick={resetErrorBoundary}>
+              <button
+                className="mt-4"
+                type="button"
+                onClick={resetErrorBoundary}
+              >
                 Try again
               </button>
             </>
