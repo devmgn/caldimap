@@ -1,0 +1,33 @@
+{
+  "updatedAt": "2026-03-09T00:00:00.000Z",
+  "stores": [
+    {
+      "id": "1",
+      "name": "サンプル新宿店",
+      "address": "東京都新宿区新宿3-1-1",
+      "lat": 35.6896,
+      "lng": 139.7006,
+      "url": "https://map.kaldi.co.jp/kaldi/detailMap?account=kaldi&accmd=0&bid=1",
+      "services": ["酒類取扱", "カフェ併設"],
+      "sales": [
+        {
+          "type": "お客様感謝セール",
+          "status": "開催中",
+          "startDate": "2026-03-05",
+          "endDate": "2026-03-09",
+          "detail": "オリジナルコーヒー豆 特別価格"
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "name": "サンプル渋谷店",
+      "address": "東京都渋谷区渋谷2-1-1",
+      "lat": 35.658,
+      "lng": 139.7016,
+      "url": "https://map.kaldi.co.jp/kaldi/detailMap?account=kaldi&accmd=0&bid=2",
+      "services": ["酒類取扱"],
+      "sales": []
+    }
+  ]
+}
