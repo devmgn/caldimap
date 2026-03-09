@@ -43,6 +43,7 @@ export async function putStoresData(data: StoresData): Promise<string> {
   const blob = await put(BLOB_PATHNAME, JSON.stringify(data), {
     access: "public",
     addRandomSuffix: false,
+    allowOverwrite: true,
     contentType: "application/json",
   });
   return blob.url;
