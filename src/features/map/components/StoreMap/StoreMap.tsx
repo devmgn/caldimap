@@ -22,8 +22,8 @@ interface StoreMapProps {
 }
 
 const JAPAN_CENTER = { lat: 36.5, lng: 137.5 } as const;
-const DEFAULT_ZOOM = 14;
-const FALLBACK_ZOOM = 11;
+const DEFAULT_ZOOM = 16;
+const FALLBACK_ZOOM = 14;
 
 type SaleCategory = "open" | "kansha";
 
