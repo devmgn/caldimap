@@ -34,7 +34,7 @@
     "date-fns": "4.1.0",
     "drizzle-orm": "0.45.1",
     "leaflet": "1.9.4",
-    "next": "16.1.6",
+    "next": "16.2.0",
     "nuqs": "2.8.9",
     "postgres": "3.4.8",
     "react": "19.2.4",
@@ -45,7 +45,7 @@
     "zod": "4.3.6"
   },
   "devDependencies": {
-    "@next/env": "16.1.6",
+    "@next/env": "16.2.0",
     "@storybook/addon-a11y": "10.2.19",
     "@storybook/addon-docs": "10.2.19",
     "@storybook/addon-mcp": "0.4.1",
