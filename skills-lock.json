@@ -6,11 +6,6 @@
       "sourceType": "github",
       "computedHash": "d2b5bcc7c09fdb649129ffc7dd7b647ec1b155736974b974292675afd588cb39"
     },
-    "pnpm": {
-      "source": "antfu/skills",
-      "sourceType": "github",
-      "computedHash": "318f9fca2441a3e06fedc336e195dd18be5dbe901064e4fa71b76b40b096ab3a"
-    },
     "vercel-composition-patterns": {
       "source": "vercel-labs/agent-skills",
       "sourceType": "github",
@@ -20,11 +15,6 @@
       "source": "vercel-labs/agent-skills",
       "sourceType": "github",
       "computedHash": "3462ec83f862abb2d532953df33a4dbf87f4616849da5d4b5cc7c13601aaf997"
-    },
-    "vercel-react-native-skills": {
-      "source": "vercel-labs/agent-skills",
-      "sourceType": "github",
-      "computedHash": "2e9088a7333666d8c2833b8ff58bd51b955501c42b4c7244f72b4cbf22dafcc4"
     },
     "vitest": {
       "source": "antfu/skills",
