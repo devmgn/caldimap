@@ -79,6 +79,25 @@ async function fetchStores(): Promise<RawStore[]> {
   return stores;
 }
 
+function padZero(n: string): string {
+  return n.padStart(2, "0");
+}
+
+function parseDateRange(text: string): { startDate: string; endDate: string } {
+  // "2026年3月5日(木) ～ 2026年3月9日(月)"
+  const pattern =
+    /(\d{4})年(\d{1,2})月(\d{1,2})日.*?～\s*(\d{4})年(\d{1,2})月(\d{1,2})日/;
+  const m = pattern.exec(text);
+  if (!m) {
+    return { startDate: "", endDate: "" };
+  }
+
+  return {
+    startDate: `${m[1]}-${padZero(m[2])}-${padZero(m[3])}`,
+    endDate: `${m[4]}-${padZero(m[5])}-${padZero(m[6])}`,
+  };
+}
+
 async function fetchSales(): Promise<RawSale[]> {
   const now = new Date().toISOString().slice(0, 19);
   const url = `${BASE_URL}?account=kaldi&accmd=1&ftop=1&kkw001=${encodeURIComponent(now)}`;
@@ -115,25 +134,6 @@ async function fetchSales(): Promise<RawSale[]> {
 
   console.warn(`Fetched ${sales.length} sales`);
   return sales;
-}
-
-function padZero(n: string): string {
-  return n.padStart(2, "0");
-}
-
-function parseDateRange(text: string): { startDate: string; endDate: string } {
-  // "2026年3月5日(木) ～ 2026年3月9日(月)"
-  const pattern =
-    /(\d{4})年(\d{1,2})月(\d{1,2})日.*?～\s*(\d{4})年(\d{1,2})月(\d{1,2})日/;
-  const m = pattern.exec(text);
-  if (!m) {
-    return { startDate: "", endDate: "" };
-  }
-
-  return {
-    startDate: `${m[1]}-${padZero(m[2])}-${padZero(m[3])}`,
-    endDate: `${m[4]}-${padZero(m[5])}-${padZero(m[6])}`,
-  };
 }
 
 const gsiGeocodeResponseSchema = z.array(

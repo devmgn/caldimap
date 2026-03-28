@@ -24,7 +24,11 @@ export function getDb(): PostgresJsDatabase<Schema> {
   return instance;
 }
 
-/** @public - called from scripts/scrape-stores.ts via dynamic import */
+/**
+ * Called from scripts/scrape-stores.ts via dynamic import
+ *
+ * @public
+ */
 export async function closeDb(): Promise<void> {
   if (client !== null) {
     await client.end();
