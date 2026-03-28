@@ -1,6 +1,12 @@
 # AGENTS.md
 
-This file provides guidance to AI coding agents when working with code in this repository.
+## Skills Priority
+
+Prefer skill instructions over rules files when they conflict. Always consult the relevant skill:
+
+- **Tests**: `vitest`
+- **React/TSX components**: `vercel-react-best-practices`, `vercel-composition-patterns`
+- **UI/UX review**: `web-design-guidelines`
 
 ## Project Architecture
 
@@ -13,6 +19,8 @@ This file provides guidance to AI coding agents when working with code in this r
 - **TanStack Query** with queryOptions helper
 - **Zod v4** for runtime validation
 - **nuqs** for URL state management (NuqsAdapter in RootProvider)
+- **Drizzle ORM** with Neon Postgres
+- **Leaflet** (react-leaflet) for map rendering
 - **OxC** (Oxlint + Oxfmt) for linting and formatting
   - jsPlugins: @tanstack/eslint-plugin-query, eslint-plugin-import, eslint-plugin-react-hooks
   - Suppress comments: `// oxlint-disable-next-line <rule>`
@@ -32,14 +40,15 @@ This file provides guidance to AI coding agents when working with code in this r
 | `src/config/`     | Application configuration                                               |
 | `src/features/`   | Feature modules (domain-organized)                                      |
 | `src/schemas/`    | Zod schemas (runtime validation, env vars)                              |
+| `src/db/`         | Database schema and client (Drizzle ORM)                                |
 | `src/@types/`     | Type declarations (`.d.ts` — global types, module augmentations)        |
 | `src/types/`      | Shared TypeScript type utilities                                        |
-| `scripts/`        | Custom lint/check scripts                                               |
+| `scripts/`        | Custom lint/check scripts, scraper                                      |
 
 ### Key Patterns
 
 - **No default exports** except Next.js special files (page.tsx, layout.tsx, etc.) and Storybook stories
-- **Function declarations** at top level (no top-level arrow functions, enforced by `fn-style/no-top-level-arrow` Oxlint rule)
+- **Function declarations** at top level (no top-level arrow functions, enforced by Oxlint rule)
 - **Named exports only** for components
 - **TanStack Query** for server state, **no global client state**
 - **Zod schemas** for runtime validation (env vars)
