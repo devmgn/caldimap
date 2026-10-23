@@ -1,6 +1,5 @@
+import { loadEnvConfig } from "@next/env";
 import { defineConfig } from "drizzle-kit";
-
-const { loadEnvConfig } = await import("@next/env");
 
 loadEnvConfig(process.cwd());
 

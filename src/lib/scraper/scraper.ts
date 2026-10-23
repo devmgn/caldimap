@@ -53,21 +53,35 @@ async function resolveAllCoords(
   return result;
 }
 
+/** The result of a scrape. */
+export interface ScrapeResult {
+  /** Stores with coordinates and their sales */
+  data: StoresData;
+  /**
+   * Every store ID on the KALDI store list, including stores that could not
+   * be geocoded and are therefore missing from `data`
+   */
+  listedStoreIds: string[];
+}
+
 /**
  * Scrapes stores and sales from the KALDI store map and merges them. Stores
  * without cached coordinates are geocoded with the GSI API.
  *
  * @param cachedCoords - Coordinates already stored in the DB, keyed by store ID
- * @returns Stores with coordinates and their sales
+ * @returns The stores with their sales, and every listed store ID
  */
 export async function buildStoresData(
   cachedCoords: Map<string, { lat: number; lng: number }>
-): Promise<StoresData> {
+): Promise<ScrapeResult> {
   const [rawStores, sales] = await Promise.all([fetchStores(), fetchSales()]);
   const resolvedCoords = await resolveAllCoords(rawStores, cachedCoords);
 
   return {
-    updatedAt: new Date().toISOString(),
-    stores: mergeStoresAndSales(rawStores, sales, resolvedCoords),
+    data: {
+      updatedAt: new Date().toISOString(),
+      stores: mergeStoresAndSales(rawStores, sales, resolvedCoords),
+    },
+    listedStoreIds: rawStores.map((raw) => raw.id),
   };
 }

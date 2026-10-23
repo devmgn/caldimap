@@ -26,12 +26,12 @@ export async function GET(request: NextRequest) {
 
   try {
     const cachedCoords = await getStoreCoordsCache();
-    const data = await buildStoresData(cachedCoords);
-    await saveScrapeResult(data);
+    const result = await buildStoresData(cachedCoords);
+    await saveScrapeResult(result);
 
     return Response.json({
       success: true,
-      storeCount: data.stores.length,
+      storeCount: result.data.stores.length,
     });
   } catch (error) {
     console.error("Scrape failed:", error);
