@@ -3,3 +3,6 @@ trustPolicy: no-downgrade
 allowBuilds:
   esbuild: true
   sharp: true
+minimumReleaseAgeExclude:
+  # Renovate security update: happy-dom@20.8.9
+  - happy-dom@20.8.9
