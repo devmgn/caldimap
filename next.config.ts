@@ -8,7 +8,6 @@ const nextConfig = {
     authInterrupts: true,
     strictRouteTypes: true,
     turbopackFileSystemCacheForDev: true,
-    viewTransition: true,
   },
   poweredByHeader: false,
   reactCompiler: true,
