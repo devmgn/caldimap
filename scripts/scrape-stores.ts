@@ -81,13 +81,9 @@ async function main() {
 
   // Write to database if configured
   if (hasDbConfig()) {
-    const { upsertStoresAndSales } =
-      await import("../src/lib/db/queries/upsert-stores-and-sales");
+    const { saveScrapeResult } = await import("../src/lib/save-scrape-result");
 
-    const { logScrape } = await import("../src/lib/db/queries/log-scrape");
-
-    await upsertStoresAndSales(output);
-    await logScrape(output.stores.length);
+    await saveScrapeResult(output);
     console.warn(`Upserted ${output.stores.length} stores to database`);
 
     const { closeDb } = await import("../src/lib/db/get-db");
