@@ -24,5 +24,5 @@ export const sales = pgTable(
       .notNull()
       .defaultNow(),
   },
-  (table) => [index("idx_sales_store_id").on(table.storeId)],
+  (table) => [index("idx_sales_store_id").on(table.storeId)]
 );

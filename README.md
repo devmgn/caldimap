@@ -10,7 +10,7 @@
 | UI        | React 19, Tailwind CSS v4, Leaflet       |
 | State     | TanStack Query, nuqs (URL state)         |
 | Data      | Drizzle ORM, Neon Postgres, Zod v4       |
-| Linting   | OxC (Oxlint + Oxfmt)                     |
+| Linting   | Ultracite (Oxlint + Oxfmt)               |
 | Testing   | Vitest, Storybook 10                     |
 | Language  | TypeScript (strict), Node.js 24, pnpm 12 |
 
@@ -27,7 +27,7 @@ pnpm dev
 ```bash
 pnpm dev              # Development server
 pnpm build            # Production build
-pnpm check            # All checks (Oxlint + Oxfmt + Knip)
+pnpm check            # All checks (Ultracite + Knip)
 pnpm fix              # Auto-fix lint + format
 pnpm test             # Run tests
 pnpm test:coverage    # Tests with coverage (80% threshold)

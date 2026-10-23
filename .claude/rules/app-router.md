@@ -7,8 +7,7 @@ paths:
 
 ## Default Exports
 
-Only Next.js special files may use default export:
-page.tsx, layout.tsx, loading.tsx, error.tsx, global-error.tsx, not-found.tsx, forbidden.tsx, unauthorized.tsx, template.tsx, default.tsx, route.tsx, sitemap.ts
+Only Next.js special files may use default export: page.tsx, layout.tsx, loading.tsx, error.tsx, global-error.tsx, not-found.tsx, forbidden.tsx, unauthorized.tsx, template.tsx, default.tsx, route.tsx, sitemap.ts
 
 ## Data Fetching
 

@@ -1,6 +1,6 @@
 import type { Preview } from "@storybook/nextjs-vite";
 import locale from "axe-core/locales/ja.json";
-import { SbProvider } from "./SbProvider";
+import { SbProvider } from "./sb-provider";
 
 const preview: Preview = {
   tags: ["autodocs"],
@@ -10,8 +10,8 @@ const preview: Preview = {
     },
     controls: {
       matchers: {
-        color: /(background|color)$/i,
-        date: /Date$/i,
+        color: /(?:background|color)$/iu,
+        date: /Date$/iu,
       },
     },
     a11y: {

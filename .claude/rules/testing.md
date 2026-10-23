@@ -10,9 +10,9 @@ paths:
 
 - **Vitest** (globals: true — `describe`, `it`, `expect`, `vi` available without import)
 - **@testing-library/react** for component and hook testing
-- **@testing-library/jest-dom** + **jest-extended** matchers (auto-registered via `vitest.setup.ts`)
+- **@testing-library/jest-dom** matchers (registered via `setupFiles: ["@testing-library/jest-dom/vitest"]`)
 - `restoreMocks: true` — mocks automatically restored after each test
-- `vitest.globalSetup.ts` loads env vars via `@next/env`, sets `TZ=Asia/Tokyo` and `LANG=ja_JP.UTF-8`
+- `vitest.global-setup.ts` loads env vars via `@next/env`, sets `TZ=Asia/Tokyo` and `LANG=ja_JP.UTF-8`
 - Coverage threshold: 80% (lines, functions, branches, statements)
 
 ## Excluded from Coverage

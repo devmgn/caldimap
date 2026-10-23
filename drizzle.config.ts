@@ -1,6 +1,7 @@
 import { defineConfig } from "drizzle-kit";
 
 const { loadEnvConfig } = await import("@next/env");
+
 loadEnvConfig(process.cwd());
 
 export default defineConfig({

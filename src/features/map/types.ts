@@ -1,3 +1,4 @@
+/** A sale held at a store. */
 export interface Sale {
   type: string;
   status: string;
@@ -6,6 +7,7 @@ export interface Sale {
   detail: string;
 }
 
+/** A KALDI store with its location and sales. */
 export interface Store {
   id: string;
   name: string;
@@ -17,6 +19,7 @@ export interface Store {
   sales: Sale[];
 }
 
+/** Every store with the time the data was built. */
 export interface StoresData {
   updatedAt: string;
   stores: Store[];

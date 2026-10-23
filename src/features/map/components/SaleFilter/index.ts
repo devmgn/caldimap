@@ -1,1 +1,0 @@
-export { SaleFilter } from "./SaleFilter";
