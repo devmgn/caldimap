@@ -4,6 +4,7 @@ import type { Store } from "../../../../types/stores-data";
 import { useEffect, useState } from "react";
 import { MapContainer, TileLayer } from "react-leaflet";
 import { CurrentLocationMarker } from "./current-location-marker";
+import { FlyToPosition } from "./fly-to-position";
 import { MyLocationButton } from "./my-location-button";
 import { PanToStore } from "./pan-to-store";
 import { StoreMarker } from "./store-marker";
@@ -12,9 +13,14 @@ interface StoreMapProps {
   stores: Store[];
 }
 
+// Initial view showing all of Japan, used until (or unless) geolocation resolves
 const JAPAN_CENTER = { lat: 36.5, lng: 137.5 } as const;
-const DEFAULT_ZOOM = 16;
-const FALLBACK_ZOOM = 14;
+const JAPAN_ZOOM = 5;
+
+const GEOLOCATION_OPTIONS: PositionOptions = {
+  timeout: 10_000,
+  maximumAge: 600_000,
+};
 
 function useCurrentPosition() {
   const [position, setPosition] = useState<{
@@ -22,46 +28,32 @@ function useCurrentPosition() {
     lng: number;
   } | null>(null);
 
-  const [resolved, setResolved] = useState(false);
-
   useEffect(() => {
     if (!("geolocation" in navigator)) {
-      queueMicrotask(() => {
-        setResolved(true);
-      });
-
       return;
     }
 
+    // Denied, unavailable, or timed out: keep the Japan view
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setPosition({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-        setResolved(true);
       },
-      () => {
-        setResolved(true);
-      }
+      null,
+      GEOLOCATION_OPTIONS
     );
   }, []);
 
-  return { position, resolved };
+  return position;
 }
 
 function StoreMap({ stores }: StoreMapProps) {
-  const { position: currentPosition, resolved } = useCurrentPosition();
+  const currentPosition = useCurrentPosition();
   const [selectedStore, setSelectedStore] = useState<Store | null>(null);
-
-  if (!resolved) {
-    return null;
-  }
-
-  const center = currentPosition ?? JAPAN_CENTER;
-  const zoom = currentPosition ? DEFAULT_ZOOM : FALLBACK_ZOOM;
 
   return (
     <MapContainer
-      center={[center.lat, center.lng]}
-      zoom={zoom}
+      center={[JAPAN_CENTER.lat, JAPAN_CENTER.lng]}
+      zoom={JAPAN_ZOOM}
       zoomControl={false}
       attributionControl
       style={{ width: "100%", height: "100%" }}
@@ -73,6 +65,7 @@ function StoreMap({ stores }: StoreMapProps) {
       <PanToStore store={selectedStore} />
       {currentPosition && (
         <>
+          <FlyToPosition position={currentPosition} />
           <CurrentLocationMarker position={currentPosition} />
           <MyLocationButton position={currentPosition} />
         </>
