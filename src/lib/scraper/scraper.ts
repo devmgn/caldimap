@@ -47,11 +47,32 @@ function parseServiceIcons(
   return services;
 }
 
+// Both list pages render this container, with or without rows. Error pages and
+// redirects (e.g. to the top page) do not
+const RESULT_PAGE_SELECTOR = ".cz_Resultclass.articleList";
+
+// Shown instead of the list table when no store currently has a sale
+const NO_SALES_MESSAGE = "現在セール店舗はございません";
+
+async function fetchKaldiPage(url: string): Promise<CheerioAPI> {
+  const res = await fetch(url);
+
+  if (!res.ok) {
+    throw new Error(`KALDI request failed: ${res.status} ${url}`);
+  }
+
+  const $ = load(await res.text());
+
+  if ($(RESULT_PAGE_SELECTOR).length === 0) {
+    throw new Error(`KALDI response is not a result page: ${url}`);
+  }
+
+  return $;
+}
+
 async function fetchStores(): Promise<RawStore[]> {
   const url = `${BASE_URL}?template=Ctrl/DispListArticle_g12&pageLimit=10000&pageSize=1000&account=kaldi&accmd=0&searchType=True&pg=1`;
-  const res = await fetch(url);
-  const html = await res.text();
-  const $ = load(html);
+  const $ = await fetchKaldiPage(url);
 
   const stores: RawStore[] = [];
 
@@ -80,6 +101,10 @@ async function fetchStores(): Promise<RawStore[]> {
     });
   });
 
+  if (stores.length === 0) {
+    throw new Error("KALDI store list returned no stores");
+  }
+
   console.warn(`Fetched ${stores.length} stores`);
 
   return stores;
@@ -94,7 +119,7 @@ interface DateRange {
   endDate: string;
 }
 
-function parseDateRange(text: string): DateRange {
+function parseDateRange(text: string): DateRange | null {
   // "2026年3月5日(木) ～ 2026年3月9日(月)"
   const pattern =
     /(?<startYear>\d{4})年(?<startMonth>\d{1,2})月(?<startDay>\d{1,2})日.*?～\s*(?<endYear>\d{4})年(?<endMonth>\d{1,2})月(?<endDay>\d{1,2})日/u;
@@ -102,7 +127,7 @@ function parseDateRange(text: string): DateRange {
   const groups = pattern.exec(text)?.groups;
 
   if (groups === undefined) {
-    return { startDate: "", endDate: "" };
+    return null;
   }
 
   const { startYear, startMonth, startDay, endYear, endMonth, endDay } = groups;
@@ -116,13 +141,19 @@ function parseDateRange(text: string): DateRange {
 async function fetchSales(): Promise<RawSale[]> {
   const now = new Date().toISOString().slice(0, 19);
   const url = `${BASE_URL}?account=kaldi&accmd=1&ftop=1&kkw001=${encodeURIComponent(now)}`;
-  const res = await fetch(url);
-  const html = await res.text();
-  const $ = load(html);
+  const $ = await fetchKaldiPage(url);
+  const rows = $("table.cz_sp_table tbody tr");
+
+  // Zero sales is valid only when the page says so; otherwise the markup changed
+  if (rows.length === 0 && !$.text().includes(NO_SALES_MESSAGE)) {
+    throw new Error(
+      "KALDI sale list has neither rows nor the no-sales message"
+    );
+  }
 
   const sales: RawSale[] = [];
 
-  $("table.cz_sp_table tbody tr").each((_, row) => {
+  rows.each((_, row) => {
     const status = $(row).find("span.saleicon, span.saleicon_f").text().trim();
     const type = $(row).find("span.saletitle, span.saletitle_f").text().trim();
     const storeLink = $(row).find("span.salename a");
@@ -136,16 +167,18 @@ async function fetchSales(): Promise<RawSale[]> {
       return;
     }
 
-    const { startDate, endDate } = parseDateRange(dateText);
+    const dateRange = parseDateRange(dateText);
 
-    sales.push({
-      storeId: bid,
-      type,
-      status,
-      startDate,
-      endDate,
-      detail,
-    });
+    // An empty date cannot be stored in the date columns and would roll back the whole upsert
+    if (dateRange === null) {
+      console.warn(
+        `Skipping sale with unparsable dates: ${type} "${dateText}" (bid=${bid})`
+      );
+
+      return;
+    }
+
+    sales.push({ storeId: bid, type, status, ...dateRange, detail });
   });
 
   console.warn(`Fetched ${sales.length} sales`);
@@ -167,6 +200,14 @@ async function fetchGsi(
 ): Promise<{ lat: number; lng: number } | null> {
   const url = `https://msearch.gsi.go.jp/address-search/AddressSearch?q=${encodeURIComponent(address)}`;
   const res = await fetch(url);
+
+  // A failed lookup only skips this store; the caller retries or gives up on it
+  if (!res.ok) {
+    console.warn(`GSI request failed: ${res.status} for ${address}`);
+
+    return null;
+  }
+
   const parsed = gsiGeocodeResponseSchema.safeParse(await res.json());
 
   if (!parsed.success || parsed.data.length === 0) {
