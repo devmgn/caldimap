@@ -22,7 +22,7 @@ describe("QUERY_CLIENT_CONFIG", () => {
   describe("queryCache onError", () => {
     it("エラー時にtoast.errorが呼ばれること", async () => {
       await queryClient
-        .fetchQuery({
+        .query({
           queryKey: ["test-error"],
           queryFn: async () => {
             await Promise.reject(new Error("fetch failed"));
@@ -35,7 +35,7 @@ describe("QUERY_CLIENT_CONFIG", () => {
 
     it("skipToast: trueのときtoast.errorが呼ばれないこと", async () => {
       await queryClient
-        .fetchQuery({
+        .query({
           queryKey: ["test-skip"],
           queryFn: async () => {
             await Promise.reject(new Error("fetch failed"));
