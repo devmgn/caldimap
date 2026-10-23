@@ -1,12 +1,9 @@
 "use client";
 
+import type { LatLng } from "../../../../types/stores-data";
 import { CircleMarker } from "react-leaflet";
 
-function CurrentLocationMarker({
-  position,
-}: {
-  position: { lat: number; lng: number };
-}) {
+function CurrentLocationMarker({ position }: { position: LatLng }) {
   return (
     <CircleMarker
       center={[position.lat, position.lng]}

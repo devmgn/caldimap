@@ -1,3 +1,9 @@
+/** A point on the map in WGS84 degrees. */
+export interface LatLng {
+  lat: number;
+  lng: number;
+}
+
 /** A sale held at a store. */
 export interface Sale {
   type: string;

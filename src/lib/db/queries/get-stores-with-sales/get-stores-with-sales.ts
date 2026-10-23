@@ -1,48 +1,9 @@
-import type { Sale, Store, StoresData } from "../../../../types/stores-data";
+import type { Store, StoresData } from "../../../../types/stores-data";
 import { eq } from "drizzle-orm";
+import { toSale } from "./utils/to-sale";
 import { getDb } from "../../get-db";
 import { sales } from "../../schema/sales";
 import { stores } from "../../schema/stores";
-
-/**
- * Sale columns of a store row left-joined with sales. All null when the store
- * has no sale.
- */
-interface SaleColumns {
-  saleId: number | null;
-  saleType: string | null;
-  saleStatus: string | null;
-  saleStartDate: string | null;
-  saleEndDate: string | null;
-  saleDetail: string | null;
-}
-
-function toSale(row: SaleColumns): Sale | null {
-  const {
-    saleId,
-    saleType,
-    saleStatus,
-    saleStartDate,
-    saleEndDate,
-    saleDetail,
-  } = row;
-
-  if (saleId === null || saleType === null || saleStatus === null) {
-    return null;
-  }
-
-  if (saleStartDate === null || saleEndDate === null || saleDetail === null) {
-    return null;
-  }
-
-  return {
-    type: saleType,
-    status: saleStatus,
-    startDate: saleStartDate,
-    endDate: saleEndDate,
-    detail: saleDetail,
-  };
-}
 
 /**
  * Loads every store with its sales.

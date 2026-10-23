@@ -1,3 +1,4 @@
+import type { LatLng } from "../../../../types/stores-data";
 import { z } from "zod";
 import { simplifyAddress } from "./utils/simplify-address";
 
@@ -10,9 +11,7 @@ const gsiGeocodeResponseSchema = z.array(
   })
 );
 
-async function fetchGsi(
-  address: string
-): Promise<{ lat: number; lng: number } | null> {
+async function fetchGsi(address: string): Promise<LatLng | null> {
   const url = `https://msearch.gsi.go.jp/address-search/AddressSearch?q=${encodeURIComponent(address)}`;
   const res = await fetch(url);
 
@@ -41,9 +40,7 @@ async function fetchGsi(
  * @param address - The store address
  * @returns The coordinates, or `null` when neither lookup matched
  */
-export async function geocodeAddress(
-  address: string
-): Promise<{ lat: number; lng: number } | null> {
+export async function geocodeAddress(address: string): Promise<LatLng | null> {
   const result = await fetchGsi(address);
 
   if (result) {

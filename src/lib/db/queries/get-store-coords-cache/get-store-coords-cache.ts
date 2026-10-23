@@ -1,3 +1,4 @@
+import type { LatLng } from "../../../../types/stores-data";
 import { getDb } from "../../get-db";
 import { stores } from "../../schema/stores";
 
@@ -7,16 +8,14 @@ import { stores } from "../../schema/stores";
  *
  * @returns Coordinates keyed by store ID
  */
-export async function getStoreCoordsCache(): Promise<
-  Map<string, { lat: number; lng: number }>
-> {
+export async function getStoreCoordsCache(): Promise<Map<string, LatLng>> {
   const db = getDb();
 
   const rows = await db
     .select({ id: stores.id, lat: stores.lat, lng: stores.lng })
     .from(stores);
 
-  const cache = new Map<string, { lat: number; lng: number }>();
+  const cache = new Map<string, LatLng>();
 
   for (const row of rows) {
     cache.set(row.id, { lat: row.lat, lng: row.lng });
