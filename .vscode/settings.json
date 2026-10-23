@@ -22,26 +22,39 @@
 
   // ── Search / Files ──
   "search.exclude": {
+    ".mise/locks": true,
     ".next": true,
     "build": true,
     "coverage": true,
+    "mise.lock": true,
     "node_modules": true,
     "out": true,
+    "pnpm-lock.yaml": true,
     "storybook-static": true
   },
 
   // ── Spell Check ──
-  "cSpell.words": ["fileoverview", "tanstack"],
+  "cSpell.words": [
+    "autodocs",
+    "fileoverview",
+    "nuqs",
+    "tanstack",
+    "tsgolint",
+    "turbopack",
+    "ultracite"
+  ],
   "cSpell.ignorePaths": [
+    ".claude/skills",
+    ".mise/locks",
     ".next",
     ".vscode",
     "build",
     "coverage",
+    "drizzle/migrations/meta",
     "node_modules",
     "out",
     "pnpm-lock.yaml",
     "public",
-    "src/api/openapi",
     "storybook-static"
   ]
 }

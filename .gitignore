@@ -42,6 +42,7 @@ Temporary Items
 
 # testing
 /coverage
+/.vitest/
 
 # next.js
 /.next/
@@ -231,11 +232,12 @@ storybook-static/
 
 # End of https://www.toptal.com/developers/gitignore/api/node,macos,nextjs,storybookjs,visualstudiocode
 
-# actionlint
-scripts/actionlint
 
-# next-agents-md
-.next-docs/
+# Lefthook local overrides (per-developer customization)
+lefthook-local.yml
 
-# Local scraper output (runtime data fetched from Vercel Blob)
+
+/.claude/settings.local.json
+
+# Local scraper output (`pnpm scrape`)
 /data/

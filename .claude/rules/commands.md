@@ -27,6 +27,10 @@ pnpm scrape                         # Scrape stores and sales into data/stores.j
 pnpm db:generate                    # Generate Drizzle migrations
 pnpm db:migrate                     # Run Drizzle migrations
 pnpm db:studio                      # Open Drizzle Studio
+pnpm doctor                         # React Doctor scan (security / perf / a11y / architecture)
+mise run skills:update              # Re-fetch the GitHub-sourced skills (skills-lock.json) into .claude/skills (review the diff, then commit)
+                                    # fallow / ultracite skills ship with their packages: pnpm links them as .claude/skills/pnpm-* (gitignored)
+                                    # on install, as approved under `permissions` in pnpm-workspace.yaml; never run `skills experimental_sync`
 ```
 
 ## Lint / Format (Ultracite)

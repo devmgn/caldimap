@@ -18,6 +18,8 @@
 - **fallow** for dead code and import boundaries (`fallow.toml`)
 - **Vitest** (coverage reported, no threshold enforced)
 - **Storybook 10** with Vitest integration, a11y testing
+- **Lefthook** for git hooks (see `lefthook.yml`)
+  - Skip with `git commit --no-verify` or `LEFTHOOK=0 git ...`
 
 ## Key Patterns
 
@@ -44,9 +46,9 @@ Topic-specific rules live in `.claude/rules/` (path-scoped ones load automatical
 
 Prefer skill instructions over rules files when they conflict. Always consult the relevant skill:
 
-- **Tests**: `vitest`
-- **React/TSX components**: `vercel-react-best-practices`, `vercel-composition-patterns`
+- **React/TSX components**: `vercel-react-best-practices`, `vercel-composition-patterns`, `vercel-react-view-transitions`
 - **UI/UX review**: `web-design-guidelines`
+- **React diagnostics**: `react-doctor` (fix-it-now / pre-commit), `improve-react` (codebase-wide audit and plans)
 
 ## MCP Tool Usage
 
