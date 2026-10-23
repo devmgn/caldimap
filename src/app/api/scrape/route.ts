@@ -1,5 +1,7 @@
 import type { NextRequest } from "next/server";
+import { revalidateTag } from "next/cache";
 import { getStoreCoordsCache } from "../../../lib/db/queries/get-store-coords-cache";
+import { STORES_CACHE_TAG } from "../../../lib/db/queries/get-stores-with-sales";
 import { saveScrapeResult } from "../../../lib/save-scrape-result";
 import { buildStoresData } from "../../../lib/scraper";
 
@@ -28,6 +30,8 @@ export async function GET(request: NextRequest) {
     const cachedCoords = await getStoreCoordsCache();
     const result = await buildStoresData(cachedCoords);
     await saveScrapeResult(result);
+    // Serve the previous data while the page regenerates in the background
+    revalidateTag(STORES_CACHE_TAG, "max");
 
     return Response.json({
       success: true,

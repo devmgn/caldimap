@@ -6,7 +6,7 @@ paths:
 # CI/CD Rules
 
 - `main` + feature branches. Workflows trigger on `push` with `branches-ignore: main`, except **actions-lint.yml** (every branch) and **skills-update.yml** (weekly `schedule` + `workflow_dispatch`)
-- **ci.yml**: jobs `Build` (`pnpm build`) / `Lint` (`pnpm check`) / `Test` (`pnpm test:unit` + `pnpm test:oxlint-rules`). Job IDs double as required status check names — do not rename
+- **ci.yml**: jobs `Build` (Postgres service + `pnpm db:migrate` + `pnpm build`, since `/` prerenders DB data) / `Lint` (`pnpm check`) / `Test` (`pnpm test:unit` + `pnpm test:oxlint-rules`). Job IDs double as required status check names — do not rename
 - Path-scoped: **actions-lint.yml** (`.github/**`, `mise.toml`, `mise.lock`)
 - Shared setup (`.github/actions/setup`): `pnpm/action-setup`, `setup-node` with `node-version-file: mise.toml`
 - actionlint / zizmor are installed by `jdx/mise-action` from `mise.toml` (`--locked` via `mise.lock`), matching the versions lefthook runs locally. skills-update.yml installs only `node` + `npm:skills` and runs `mise run --skip-tools skills:update`

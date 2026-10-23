@@ -1,1 +1,1 @@
-export { getStoresWithSales } from "./get-stores-with-sales";
+export { getStoresWithSales, STORES_CACHE_TAG } from "./get-stores-with-sales";
