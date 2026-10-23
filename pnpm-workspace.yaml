@@ -3,3 +3,6 @@ trustPolicy: no-downgrade
 allowBuilds:
   esbuild: true
   sharp: true
+minimumReleaseAgeExclude:
+  # Renovate security update: @storybook/addon-vitest@10.6.2
+  - "@storybook/addon-vitest@10.6.2"
