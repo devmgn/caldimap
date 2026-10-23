@@ -1,3 +1,7 @@
+---
+description: Branch naming, commit messages, PR workflow
+---
+
 # Git & Pull Request Rules
 
 ## Branch Naming

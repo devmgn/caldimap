@@ -2,7 +2,13 @@
 "aqua:zizmorcore/zizmor" = "1.31.1"
 actionlint = "1.7.12"
 node = "24.22.1"
+"npm:skills" = "1.7.4"
 pnpm = "12.14.0"
+
+[vars]
+skills_add = "skills add -a claude-code -y"
+vercel_skills = "vercel-react-best-practices vercel-composition-patterns vercel-react-view-transitions web-design-guidelines"
+react_doctor_skills = "react-doctor improve-react"
 
 [tasks."lint:workflows"]
 description = "GitHub Actions lint (actionlint + zizmor)"
@@ -16,3 +22,13 @@ run = "actionlint -color"
 [tasks."lint:zizmor"]
 description = "Audit GitHub Actions security with zizmor"
 run = "zizmor .github/"
+
+[tasks."skills:update"]
+description = "Re-fetch the GitHub-sourced skills (skills-lock.json) into .claude/skills"
+# Disable telemetry to skills.sh
+env = { DO_NOT_TRACK = "1" }
+# --skill is variadic, so keep it last
+run = [
+  "{{vars.skills_add}} vercel-labs/agent-skills --skill {{vars.vercel_skills}}",
+  "{{vars.skills_add}} millionco/react-doctor --skill {{vars.react_doctor_skills}}",
+]

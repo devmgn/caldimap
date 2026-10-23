@@ -5,20 +5,24 @@ paths:
 
 # Next.js App Router Rules
 
-## Default Exports
+## Convention Files
 
-Only Next.js special files may use default export: page.tsx, layout.tsx, loading.tsx, error.tsx, global-error.tsx, not-found.tsx, forbidden.tsx, unauthorized.tsx, template.tsx, default.tsx, route.tsx, sitemap.ts
+Next.js convention files are the only files that sit flat in a route directory (everything else follows `directory-structure.md`) and the only non-story files allowed a default export:
+
+`page.tsx`, `layout.tsx`, `template.tsx`, `default.tsx`, `loading.tsx`, `error.tsx`, `global-error.tsx`, `not-found.tsx`, `global-not-found.tsx`, `forbidden.tsx`, `unauthorized.tsx`, `route.ts`, `sitemap.ts`
 
 ## Data Fetching
 
-- Server Component: `Hydrator` (`src/lib/Hydrator`) wrapping `queryOptions` for prefetching
-- Client Component: `"use client"` + `useSuspenseQuery`
+- Server Component (`page.tsx`): query the DB directly through `src/lib/db/queries/` and pass the result to Client Components as props
+- Client Component: `"use client"` + TanStack Query (`queryOptions`) for client-side fetching
+- Build every `QueryClient` with `createQueryClientConfig()` (via `getQueryClient`, `src/lib/get-query-client`), never a shared config object: `QueryCache` / `MutationCache` hold the cache, so sharing them leaks data between server requests (and between stories)
 
-## Form Handling
+## Files That Bypass the Root Layout
 
-- React Hook Form: `createFormControl` + `Form` + `zodResolver`
-- Server Actions: `"use server"` + `useActionState` + `startTransition`
+`global-error.tsx` and `global-not-found.tsx` are not rendered inside the root layout, so they provide their own `<html>` / `<body>` and import `../lib/styles/globals.css`.
 
-## Proxy
-
-`src/proxy.ts` (NOT `middleware.ts`) — Next.js Proxy convention
+|  | Rendered when | Component | metadata |
+| --- | --- | --- | --- |
+| `global-error.tsx` | An uncaught error in the root layout / template | Client only | Not supported (use `<title>`) |
+| `global-not-found.tsx` | A URL matches no route | Server OK | Supported |
+| `not-found.tsx` | `notFound()` is called | Server OK | Supported (rendered inside the root layout) |

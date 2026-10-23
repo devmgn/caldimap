@@ -1,0 +1,58 @@
+pre-commit:
+  piped: true
+  jobs:
+    - name: protect-main
+      run: |
+        branch=$(git branch --show-current)
+        if [ "$branch" = "main" ]; then
+          echo "Committing directly to main is not allowed. Create a feature branch named <type>/<description>."
+          echo "e.g. feat/add-login, fix/typo, chore/fallow-optimize"
+          exit 1
+        fi
+    - name: ultracite
+      glob: "*.{js,jsx,ts,tsx,json,jsonc,css,md,mdx,yml,yaml,toml}"
+      run: pnpm ultracite fix --no-error-on-unmatched-pattern {staged_files}
+      stage_fixed: true
+    - name: test
+      glob: "*.{ts,tsx}"
+      run: pnpm vitest related --run {staged_files}
+
+pre-push:
+  parallel: true
+  jobs:
+    - name: branch-name
+      run: |
+        branch=$(git branch --show-current)
+        case "$branch" in
+          ""|main) exit 0 ;;
+        esac
+        if ! echo "$branch" | grep -qE '^(feat|fix|chore|refactor|docs|style|test|perf|build|ci|revert|renovate)/[a-z0-9._/-]+$'; then
+          echo "Branch names must follow the <type>/<description> format"
+          echo "e.g. feat/add-login, fix/typo, chore/fallow-optimize"
+          exit 1
+        fi
+    - name: lint-dead-code
+      run: pnpm lint:dead-code
+    - name: lint-workflows
+      glob:
+        - ".github/**"
+        - "mise.toml"
+        - "mise.lock"
+      run: mise run lint:workflows
+
+post-merge:
+  jobs:
+    - name: install
+      run: mise exec -- pnpm install --frozen-lockfile --prefer-offline
+
+post-checkout:
+  jobs:
+    - name: install
+      skip:
+        - rebase
+      run: '[ "{3}" = 0 ] || mise exec -- pnpm install --frozen-lockfile --prefer-offline'
+
+post-rewrite:
+  jobs:
+    - name: install
+      run: '[ "{1}" = amend ] || mise exec -- pnpm install --frozen-lockfile --prefer-offline'

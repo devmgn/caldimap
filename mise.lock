@@ -129,6 +129,12 @@ url = "https://nodejs.org/dist/v24.22.1/node-v24.22.1-darwin-x64.tar.gz"
 checksum = "sha256:d2046d28c2c3dcd211ac5145c0bf30e2047ef9dfb306693c8c6e2eccd8b95fa5"
 url = "https://nodejs.org/dist/v24.22.1/node-v24.22.1-win-x64.zip"
 
+[[tools."npm:skills"]]
+version = "1.7.4"
+aube = { path = ".mise/locks/npm-skills/1.7.4", digest = "sha256:0fc828a5def0f23c2336c3e5094fc52f74b3b73e8f86a28c338a63c4324b902b" }
+backend = "npm:skills"
+specifiers = ["1.7.4"]
+
 [[tools.pnpm]]
 version = "12.14.0"
 backend = "aqua:pnpm/pnpm"

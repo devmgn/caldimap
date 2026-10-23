@@ -41,5 +41,5 @@
     "vitest.config.ts",
     "vitest.global-setup.ts"
   ],
-  "exclude": ["node_modules", "src/api/openapi"]
+  "exclude": ["node_modules"]
 }
