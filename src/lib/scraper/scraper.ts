@@ -1,4 +1,4 @@
-import type { StoresData } from "../../types/stores-data";
+import type { LatLng, StoresData } from "../../types/stores-data";
 import type { RawSale } from "./utils/parse-sales-page";
 import type { RawStore } from "./utils/parse-stores-page";
 import { fetchKaldiPage } from "./utils/fetch-kaldi-page";
@@ -34,8 +34,8 @@ async function fetchSales(): Promise<RawSale[]> {
 
 async function resolveAllCoords(
   rawStores: RawStore[],
-  cachedCoords: Map<string, { lat: number; lng: number }>
-): Promise<Map<string, { lat: number; lng: number }>> {
+  cachedCoords: Map<string, LatLng>
+): Promise<Map<string, LatLng>> {
   const result = new Map(cachedCoords);
 
   const uncached = rawStores.filter((raw) => !cachedCoords.has(raw.id));
@@ -72,7 +72,7 @@ export interface ScrapeResult {
  * @returns The stores with their sales, and every listed store ID
  */
 export async function buildStoresData(
-  cachedCoords: Map<string, { lat: number; lng: number }>
+  cachedCoords: Map<string, LatLng>
 ): Promise<ScrapeResult> {
   const [rawStores, sales] = await Promise.all([fetchStores(), fetchSales()]);
   const resolvedCoords = await resolveAllCoords(rawStores, cachedCoords);

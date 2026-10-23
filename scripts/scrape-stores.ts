@@ -1,3 +1,4 @@
+import type { LatLng } from "../src/types/stores-data";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { parseArgs } from "node:util";
@@ -20,9 +21,7 @@ function hasDbConfig(): boolean {
   return url !== undefined && url !== "";
 }
 
-async function loadCoordsCache(): Promise<
-  Map<string, { lat: number; lng: number }>
-> {
+async function loadCoordsCache(): Promise<Map<string, LatLng>> {
   if (hasDbConfig()) {
     try {
       const { getStoreCoordsCache } =
@@ -42,7 +41,7 @@ async function loadCoordsCache(): Promise<
       JSON.parse(readFileSync(OUTPUT_PATH, "utf-8"))
     );
 
-    const coords = new Map<string, { lat: number; lng: number }>();
+    const coords = new Map<string, LatLng>();
 
     for (const s of existing.stores) {
       coords.set(s.id, { lat: s.lat, lng: s.lng });
@@ -62,7 +61,7 @@ async function main() {
   const skipCache = values["no-cache"];
 
   const cachedCoords = skipCache
-    ? new Map<string, { lat: number; lng: number }>()
+    ? new Map<string, LatLng>()
     : await loadCoordsCache();
 
   if (skipCache) {

@@ -1,4 +1,4 @@
-import type { Store } from "../../../../types/stores-data";
+import type { LatLng, Store } from "../../../../types/stores-data";
 import type { RawSale } from "../parse-sales-page";
 import type { RawStore } from "../parse-stores-page";
 
@@ -14,7 +14,7 @@ import type { RawStore } from "../parse-stores-page";
 export function mergeStoresAndSales(
   rawStores: RawStore[],
   sales: RawSale[],
-  coords: Map<string, { lat: number; lng: number }>
+  coords: Map<string, LatLng>
 ): Store[] {
   const salesByStore = new Map<string, RawSale[]>();
 

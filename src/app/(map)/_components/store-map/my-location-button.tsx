@@ -1,20 +1,15 @@
 "use client";
 
-import { useCallback } from "react";
+import type { LatLng } from "../../../../types/stores-data";
 import { useMap } from "react-leaflet";
+import { DEFAULT_ZOOM } from "./utils/map-config";
 
-const DEFAULT_ZOOM = 16;
-
-function MyLocationButton({
-  position,
-}: {
-  position: { lat: number; lng: number };
-}) {
+function MyLocationButton({ position }: { position: LatLng }) {
   const map = useMap();
 
-  const handleClick = useCallback(() => {
+  function handleClick() {
     map.setView(position, DEFAULT_ZOOM);
-  }, [map, position]);
+  }
 
   return (
     <button
