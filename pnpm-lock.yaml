@@ -4735,7 +4735,7 @@ snapshots:
 
   '@internationalized/number@3.6.9':
     dependencies:
-      '@swc/helpers': 0.5.15
+      '@swc/helpers': 0.5.23
 
   '@jest/diff-sequences@30.3.0': {}
 
