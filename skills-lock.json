@@ -7,6 +7,12 @@
       "skillPath": "skills/improve-react/SKILL.md",
       "computedHash": "ee6095448a511e2507528caae7ba91c5dc462464b603196c5b1931d4924a371a"
     },
+    "modern-react-guidance": {
+      "source": "adhhamdev/modern-react-guidance",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "7c4401d97da6fc01a3d76e87783180c8015316f4935b3fe1a7a15aa8aa03c99f"
+    },
     "react-doctor": {
       "source": "millionco/react-doctor",
       "sourceType": "github",

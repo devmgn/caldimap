@@ -46,7 +46,7 @@ Topic-specific rules live in `.claude/rules/` (path-scoped ones load automatical
 
 Prefer skill instructions over rules files when they conflict. Always consult the relevant skill:
 
-- **React/TSX components**: `vercel-react-best-practices`, `vercel-composition-patterns`, `vercel-react-view-transitions`
+- **React/TSX components**: `modern-react-guidance`, `vercel-react-best-practices`, `vercel-composition-patterns`, `vercel-react-view-transitions`
 - **UI/UX review**: `web-design-guidelines`
 - **React diagnostics**: `react-doctor` (fix-it-now / pre-commit), `improve-react` (codebase-wide audit and plans)
 
