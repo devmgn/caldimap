@@ -11,3 +11,8 @@ trustPolicyExclude:
 allowBuilds:
   esbuild: true
   sharp: true
+permissions:
+  fallow:
+    skills: true
+  ultracite:
+    skills: true

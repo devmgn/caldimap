@@ -7,7 +7,7 @@ const { loadEnvConfig } = await import("@next/env");
 
 loadEnvConfig(path.resolve(import.meta.dirname, ".."));
 
-const DATA_DIR = path.resolve(import.meta.dirname, "../src/data");
+const DATA_DIR = path.resolve(import.meta.dirname, "../data");
 const OUTPUT_PATH = path.resolve(DATA_DIR, "stores.json");
 
 const { values } = parseArgs({
@@ -25,7 +25,9 @@ async function loadCoordsCache(): Promise<
 > {
   if (hasDbConfig()) {
     try {
-      const { getStoreCoordsCache } = await import("../src/db/queries/stores");
+      const { getStoreCoordsCache } =
+        await import("../src/lib/db/queries/get-store-coords-cache");
+
       const coords = await getStoreCoordsCache();
       console.warn(`Loaded ${coords.size} cached coordinates from database`);
 
@@ -79,14 +81,16 @@ async function main() {
 
   // Write to database if configured
   if (hasDbConfig()) {
-    const { logScrape, upsertStoresAndSales } =
-      await import("../src/db/queries/stores");
+    const { upsertStoresAndSales } =
+      await import("../src/lib/db/queries/upsert-stores-and-sales");
+
+    const { logScrape } = await import("../src/lib/db/queries/log-scrape");
 
     await upsertStoresAndSales(output);
     await logScrape(output.stores.length);
     console.warn(`Upserted ${output.stores.length} stores to database`);
 
-    const { closeDb } = await import("../src/db");
+    const { closeDb } = await import("../src/lib/db/get-db");
     await closeDb();
   }
 }

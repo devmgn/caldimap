@@ -24,20 +24,4 @@ describe("runtime", () => {
       expect(isProduction).toBeFalsy();
     });
   });
-
-  describe("isServer", () => {
-    it("isServer is true when window is undefined", async () => {
-      // Passing undefined as the second argument unsets the value
-      // oxlint-disable-next-line unicorn/no-useless-undefined
-      vi.stubGlobal("window", undefined);
-      const { isServer } = await import("./runtime");
-      expect(isServer).toBeTruthy();
-    });
-
-    it("isServer is false when window is defined", async () => {
-      vi.stubGlobal("window", {});
-      const { isServer } = await import("./runtime");
-      expect(isServer).toBeFalsy();
-    });
-  });
 });

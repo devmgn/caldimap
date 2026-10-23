@@ -1,7 +1,7 @@
-import type { StoresData } from "../src/features/map/types";
+import type { StoresData } from "../src/types/stores-data";
 import { z } from "zod";
 
-/** Shape of `src/data/stores.json`, written by `pnpm scrape`. */
+/** Shape of `data/stores.json`, written by `pnpm scrape`. */
 export const storesDataSchema = z.object({
   updatedAt: z.string(),
   stores: z.array(

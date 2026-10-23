@@ -1,9 +1,7 @@
 import type { NextRequest } from "next/server";
-import {
-  getStoreCoordsCache,
-  logScrape,
-  upsertStoresAndSales,
-} from "../../../db/queries/stores";
+import { getStoreCoordsCache } from "../../../lib/db/queries/get-store-coords-cache";
+import { logScrape } from "../../../lib/db/queries/log-scrape";
+import { upsertStoresAndSales } from "../../../lib/db/queries/upsert-stores-and-sales";
 import { buildStoresData } from "../../../lib/scraper";
 
 /**

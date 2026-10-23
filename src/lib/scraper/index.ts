@@ -1,0 +1,1 @@
+export { buildStoresData } from "./scraper";
