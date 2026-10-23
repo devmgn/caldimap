@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches-ignore:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+# Job IDs double as required status check names, so do not change them.
+#
+# zizmor recommends the `$/` syntax for same-repo references, but actionlint 1.7.12
+# (the latest at the time of writing) rejects it as an unknown format, so keep `./`.
+# Once actionlint supports it, drop the ignore and migrate to `$/.github/actions/setup`.
+jobs:
+  Build:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Project
+        uses: ./.github/actions/setup # zizmor: ignore[self-repository]
+
+      - name: Build
+        run: pnpm build
+
+  Lint:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Project
+        uses: ./.github/actions/setup # zizmor: ignore[self-repository]
+
+      - name: Check
+        run: pnpm check
+
+  Test:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Project
+        uses: ./.github/actions/setup # zizmor: ignore[self-repository]
+
+      - name: Test (unit)
+        run: pnpm test:unit

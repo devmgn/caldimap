@@ -10,7 +10,6 @@
     "fix": "pnpm lint:fix && pnpm fmt:fix",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
-    "lint:workflows": "actionlint -color && zizmor .github/",
     "fmt": "oxfmt --check .",
     "fmt:fix": "oxfmt --write .",
     "knip": "knip --strict --cache",
@@ -84,7 +83,7 @@
     "vitest": "4.1.1"
   },
   "engines": {
-    "node": "24.14.1"
+    "node": ">=24"
   },
   "packageManager": "pnpm@10.33.0"
 }
