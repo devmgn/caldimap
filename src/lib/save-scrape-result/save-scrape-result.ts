@@ -1,13 +1,14 @@
-import type { StoresData } from "../../types/stores-data";
+import type { ScrapeResult } from "../scraper";
 import { logScrape } from "../db/queries/log-scrape";
 import { upsertStoresAndSales } from "../db/queries/upsert-stores-and-sales";
 
 /**
- * Persists a scrape: upserts stores and sales, then records the run.
+ * Persists a scrape: upserts stores and sales, deletes stores that left the
+ * KALDI store list, then records the run.
  *
- * @param data - The scraped stores and sales
+ * @param result - The scrape result
  */
-export async function saveScrapeResult(data: StoresData): Promise<void> {
-  await upsertStoresAndSales(data);
-  await logScrape(data.stores.length);
+export async function saveScrapeResult(result: ScrapeResult): Promise<void> {
+  await upsertStoresAndSales(result.data, result.listedStoreIds);
+  await logScrape(result.data.stores.length);
 }

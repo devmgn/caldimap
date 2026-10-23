@@ -69,7 +69,8 @@ async function main() {
     console.warn("Cache skipped (--no-cache)");
   }
 
-  const output = await buildStoresData(cachedCoords);
+  const result = await buildStoresData(cachedCoords);
+  const output = result.data;
 
   // Save local JSON for development
   if (!existsSync(DATA_DIR)) {
@@ -83,7 +84,7 @@ async function main() {
   if (hasDbConfig()) {
     const { saveScrapeResult } = await import("../src/lib/save-scrape-result");
 
-    await saveScrapeResult(output);
+    await saveScrapeResult(result);
     console.warn(`Upserted ${output.stores.length} stores to database`);
 
     const { closeDb } = await import("../src/lib/db/get-db");
