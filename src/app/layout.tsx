@@ -1,6 +1,9 @@
 import type { Metadata, Viewport } from "next";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { Toaster } from "sonner";
-import { RootProvider } from "../providers/root-provider";
+import { WebVitalsReporter } from "../lib/web-vitals-reporter";
+import { QueryClientProvider } from "../providers/query-client-provider";
+import { isProduction } from "../utils/runtime";
 import "../lib/styles/globals.css";
 
 export const metadata: Metadata = {
@@ -29,8 +32,11 @@ export default function Layout(props: React.PropsWithChildren) {
   return (
     <html lang="ja">
       <body>
-        <RootProvider>{children}</RootProvider>
+        <NuqsAdapter>
+          <QueryClientProvider>{children}</QueryClientProvider>
+        </NuqsAdapter>
         <Toaster richColors closeButton />
+        {!isProduction && <WebVitalsReporter />}
       </body>
     </html>
   );

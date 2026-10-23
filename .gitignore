@@ -238,4 +238,4 @@ scripts/actionlint
 .next-docs/
 
 # Local scraper output (runtime data fetched from Vercel Blob)
-src/data/
+/data/

@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Suspense, useState } from "react";
 import { Toaster } from "sonner";
-import { createQueryClientConfig } from "../src/config/query-client-config";
+import { createQueryClientConfig } from "../src/lib/get-query-client/config/query-client-config";
 import "../src/lib/styles/globals.css";
 
 /**

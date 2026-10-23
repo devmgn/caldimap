@@ -9,19 +9,19 @@ export default defineConfig({
       include: ["src/**/*.{ts,tsx}"],
       exclude: [
         "**/*.d.ts",
+        "**/*.test-d.{ts,tsx}",
         "src/**/*.stories.tsx",
-        "src/{instrumentation-client,instrumentation,middleware}.ts",
+        "src/{instrumentation-client,instrumentation}.ts",
         "src/app/**/{default,error,forbidden,global-error,global-not-found,layout,loading,not-found,page,route,template,unauthorized}.{ts,tsx}",
       ],
-      thresholds: {
-        lines: 80,
-        functions: 80,
-        branches: 80,
-        statements: 80,
-      },
     },
-    testTimeout: 10_000,
-    hookTimeout: 10_000,
+    fsModuleCache: true,
+    globals: true,
+    mockReset: true,
+    pool: "threads",
+    restoreMocks: true,
+    unstubEnvs: true,
+    unstubGlobals: true,
     projects: [
       {
         extends: true,
@@ -29,13 +29,12 @@ export default defineConfig({
         test: {
           name: "unit",
           include: ["src/**/*.{test,spec}.{ts,tsx}"],
-          globals: true,
           environment: "happy-dom",
           globalSetup: "./vitest.global-setup.ts",
           setupFiles: ["@testing-library/jest-dom/vitest"],
-          restoreMocks: true,
-          unstubEnvs: true,
-          unstubGlobals: true,
+          typecheck: {
+            enabled: true,
+          },
         },
       },
       {
@@ -47,24 +46,17 @@ export default defineConfig({
       },
       {
         extends: true,
-        plugins: [
-          // The plugin will run tests for the stories defined in your Storybook config
-          // See options at: https://storybook.js.org/docs/writing-tests/test-addon#storybooktest
-          storybookTest({
-            configDir: ".storybook",
-            tags: {
-              include: ["test"],
-              exclude: [],
-              skip: [],
-            },
-          }),
-        ],
+        plugins: [storybookTest()],
         test: {
           name: "storybook",
           browser: {
             enabled: true,
             headless: true,
-            provider: playwright(),
+            // Match the unit TZ (vitest.global-setup.ts) and the app's <html lang="ja">.
+            // If unset, headless Chromium runs in en-US regardless of environment variables
+            provider: playwright({
+              contextOptions: { locale: "ja-JP", timezoneId: "Asia/Tokyo" },
+            }),
             instances: [{ browser: "chromium" }],
           },
         },

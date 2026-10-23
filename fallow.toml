@@ -1,0 +1,150 @@
+#:schema ./node_modules/fallow/schema.json
+
+# The Storybook plugin does not treat stories' *.mdx as entries, nor does the Vitest plugin treat typecheck.include type tests as entries
+# scripts/*.ts are run directly with tsx
+entry = ["src/**/*.mdx", "src/**/*.test-d.{ts,tsx}", "scripts/*.ts"]
+
+ignoreFindings = ["tools/lint-ignore/**"]
+
+ignoreDependencies = [
+  # Resolved by other packages at runtime
+  "eslint-plugin-github",
+  "eslint-plugin-jsdoc",
+  "eslint-plugin-sonarjs",
+  "eslint-plugin-tsdoc",
+  "oxlint-plugin-react-doctor",
+  # Referenced as strings in config files
+  "@tailwindcss/turbopack",
+]
+
+[rules]
+unused-dev-dependencies = "error"
+unused-optional-dependencies = "error"
+unused-component-props = "error"
+unused-server-actions = "error"
+type-only-dependencies = "error"
+test-only-dependencies = "error"
+dev-dependencies-in-production = "error"
+re-export-cycle = "error"
+stale-suppressions = "error"
+unused-catalog-entries = "error"
+empty-catalog-groups = "error"
+unused-dependency-overrides = "error"
+invalid-client-export = "error"
+mixed-client-server-barrel = "error"
+misplaced-directive = "error"
+require-suppression-reason = "error"
+policy-violation = "off"
+css-token-drift = "off"
+css-duplicate-block = "off"
+css-selector-complexity = "off"
+css-dead-surface = "off"
+css-broken-reference = "off"
+
+[duplicates]
+ignore = [
+  # Demo code favors readability, so duplication and length are allowed
+  "src/**/*.stories.tsx",
+]
+
+[health]
+ignore = [
+  # Demo code favors readability, so duplication and length are allowed
+  "src/**/*.stories.tsx",
+  # A describe block counts as one function and grows into a large function in proportion to its cases
+  "src/**/*.{test,spec,test-d}.{ts,tsx}",
+  "tools/**/*.test.ts",
+]
+
+# A file belongs to the first matching zone. Carve out tests and stories before the main zones
+[[boundaries.zones]]
+# Tests, type tests, and stories
+name = "dev"
+patterns = [
+  "src/**/*.{test,spec,test-d}.{ts,tsx}",
+  "src/**/*.stories.{ts,tsx}",
+  "src/**/*.mdx",
+]
+
+# The zones below follow the 3 layers in .claude/rules/directory-structure.md
+[[boundaries.zones]]
+# App Router. Each top-level route / route group becomes its own zone, and cross-imports are forbidden (one level only)
+name = "app"
+patterns = ["src/app/**"]
+autoDiscover = ["src/app"]
+
+[[boundaries.zones]]
+# Contract layer: type helpers, global type augmentations, and shared data shapes
+name = "types"
+patterns = ["src/types/**"]
+
+[[boundaries.zones]]
+# Generic: UI components
+name = "components"
+patterns = ["src/components/**"]
+
+[[boundaries.zones]]
+# Generic: React hooks
+name = "hooks"
+patterns = ["src/hooks/**"]
+
+[[boundaries.zones]]
+# Generic: logic portable outside the project
+name = "utils"
+patterns = ["src/utils/**"]
+
+[[boundaries.zones]]
+# App-specific: configuration, integrations (DB, scraper), and glue
+name = "lib"
+patterns = ["src/lib/**"]
+
+[[boundaries.zones]]
+# App-specific: Context Providers wrapping the whole app
+name = "providers"
+patterns = ["src/providers/**"]
+
+# Forbid imports into zones not listed in allow. Nothing may import from dev
+[[boundaries.rules]]
+# Tests and stories may combine all zones
+from = "dev"
+allow = ["app", "types", "components", "hooks", "utils", "lib", "providers"]
+
+[[boundaries.rules]]
+# Routes may use all shared layers
+from = "app"
+allow = ["types", "components", "hooks", "utils", "lib", "providers"]
+
+[[boundaries.rules]]
+# Type helpers are self-contained
+from = "types"
+allow = []
+
+[[boundaries.rules]]
+# Generic UI may use only generic hooks / utils
+from = "components"
+allow = ["types", "hooks", "utils"]
+
+[[boundaries.rules]]
+# Generic hooks do not depend on UI
+from = "hooks"
+allow = ["types", "utils"]
+
+[[boundaries.rules]]
+# Bottom layer. Depends on nothing but types
+from = "utils"
+allow = ["types"]
+
+[[boundaries.rules]]
+# App-specific glue ties together the contract and generic layers
+from = "lib"
+allow = ["types", "components", "hooks", "utils"]
+
+[[boundaries.rules]]
+# Providers load configuration from lib and wrap the app with it
+from = "providers"
+allow = ["types", "components", "hooks", "utils", "lib"]
+
+[boundaries.coverage]
+# Everything under src/ must belong to a zone, preventing unclassified top-level additions
+requireAllFiles = true
+allowUnmatched = ["tools/**", "scripts/**", ".storybook/**", "*.ts"]

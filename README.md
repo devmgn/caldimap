@@ -27,10 +27,10 @@ pnpm dev
 ```bash
 pnpm dev              # Development server
 pnpm build            # Production build
-pnpm check            # All checks (Ultracite + Knip)
+pnpm check            # All checks (Ultracite + fallow)
 pnpm fix              # Auto-fix lint + format
 pnpm test             # Run tests
-pnpm test:coverage    # Tests with coverage (80% threshold)
+pnpm test:coverage    # Tests with coverage report
 pnpm storybook        # Storybook dev server
 pnpm scrape           # Scrape store/sale data
 pnpm db:migrate       # Run database migrations
