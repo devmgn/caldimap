@@ -10,7 +10,6 @@ paths:
 
 - **Storybook 10** with `@storybook/nextjs-vite` framework
 - Addons: a11y, docs, vitest, MCP (`@storybook/addon-mcp` with dev + docs toolsets)
-- MSW integration enabled (mswLoader in preview)
 - a11y test mode: `"todo"` (shown in test UI only)
 - Autodocs enabled via tags: `["autodocs"]`
 
