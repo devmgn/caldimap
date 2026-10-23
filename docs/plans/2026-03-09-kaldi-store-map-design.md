@@ -142,7 +142,7 @@ const ICON_TO_SERVICE: Record<string, string> = {
 
 function parseServiceIcons(
   $: cheerio.CheerioAPI,
-  row: cheerio.Element,
+  row: cheerio.Element
 ): string[] {
   const services: string[] = [];
   $(row)
@@ -252,7 +252,7 @@ function parseDateRange(text: string): { startDate: string; endDate: string } {
 
 async function geocodeAddress(
   address: string,
-  apiKey: string,
+  apiKey: string
 ): Promise<{ lat: number; lng: number } | null> {
   const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}&language=ja`;
   const res = await fetch(url);
@@ -576,7 +576,7 @@ import { useMemo } from "react";
 function useSaleFilter(stores: Store[]) {
   const [selectedSales, setSelectedSales] = useQueryState(
     "sales",
-    parseAsArrayOf(parseAsString, ",").withDefault([]),
+    parseAsArrayOf(parseAsString, ",").withDefault([])
   );
 
   const saleTypes = useMemo(() => {
@@ -592,7 +592,7 @@ function useSaleFilter(stores: Store[]) {
   const filteredStores = useMemo(() => {
     if (selectedSales.length === 0) return stores;
     return stores.filter((store) =>
-      store.sales.some((sale) => selectedSales.includes(sale.type)),
+      store.sales.some((sale) => selectedSales.includes(sale.type))
     );
   }, [stores, selectedSales]);
 
@@ -600,7 +600,7 @@ function useSaleFilter(stores: Store[]) {
     setSelectedSales((prev) =>
       prev.includes(saleType)
         ? prev.filter((s) => s !== saleType)
-        : [...prev, saleType],
+        : [...prev, saleType]
     );
   }
 

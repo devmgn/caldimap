@@ -1,9 +1,20 @@
 import { defineConfig } from "oxfmt";
+import ultracite from "ultracite/oxfmt";
+import {
+  generatedSources,
+  staticAssets,
+  vendoredSources,
+} from "./tools/lint-ignore/index.ts";
 
 export default defineConfig({
-  ignorePatterns: [".*/skills/**", "public/**", "src/api/openapi/**"],
-  printWidth: 80,
-  experimentalSortImports: {
+  ...ultracite,
+  ignorePatterns: [
+    ...(ultracite.ignorePatterns ?? []),
+    ...staticAssets,
+    ...generatedSources,
+    ...vendoredSources,
+  ],
+  sortImports: {
     groups: [
       "side_effect",
       "type",
@@ -18,6 +29,7 @@ export default defineConfig({
       "import",
       "side_effect_style",
     ],
+    ignoreCase: false,
     newlinesBetween: false,
   },
   jsdoc: {
@@ -25,7 +37,5 @@ export default defineConfig({
   },
   sortTailwindcss: {
     stylesheet: "./src/lib/styles/globals.css",
-    attributes: ["className"],
-    functions: ["tv"],
   },
 });

@@ -4,11 +4,12 @@
 pnpm dev                              # Dev server (Turbopack)
 pnpm build                            # Production build
 pnpm start                            # Start production server
-pnpm check                            # All checks (Oxlint + Oxfmt + Knip)
+pnpm check                            # All checks (Ultracite + Knip)
 pnpm fix                              # Auto-fix lint + format
 pnpm knip                             # Dead code detection
 pnpm test                             # Run all tests
 pnpm test:unit                        # Unit tests only
+pnpm test:oxlint-rules                # Tests for the custom Oxlint rules
 pnpm test:watch                       # Watch mode
 pnpm test:coverage                    # Tests with coverage (80% threshold)
 pnpm test:update                      # Update snapshots

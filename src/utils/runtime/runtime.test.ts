@@ -1,39 +1,43 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
 describe("runtime", () => {
   beforeEach(() => {
     vi.resetModules();
   });
 
   describe("isProduction", () => {
-    it('NODE_ENVが"production"のとき、trueとなること', async () => {
+    it('is true when NODE_ENV is "production"', async () => {
       vi.stubEnv("NODE_ENV", "production");
       const { isProduction } = await import("./runtime");
-      expect(isProduction).toBe(true);
+      expect(isProduction).toBeTruthy();
     });
 
-    it('NODE_ENVが"production"以外のとき、falseとなること', async () => {
+    it('is false when NODE_ENV is not "production"', async () => {
       vi.stubEnv("NODE_ENV", "development");
       const { isProduction } = await import("./runtime");
-      expect(isProduction).toBe(false);
+      expect(isProduction).toBeFalsy();
     });
 
-    it("NODE_ENVが未定義のとき、falseとなること", async () => {
+    it("is false when NODE_ENV is undefined", async () => {
       vi.stubEnv("NODE_ENV", "");
       const { isProduction } = await import("./runtime");
-      expect(isProduction).toBe(false);
+      expect(isProduction).toBeFalsy();
     });
   });
 
   describe("isServer", () => {
-    it("window が undefined のとき、isServer が true となること", async () => {
+    it("isServer is true when window is undefined", async () => {
+      // Passing undefined as the second argument unsets the value
+      // oxlint-disable-next-line unicorn/no-useless-undefined
       vi.stubGlobal("window", undefined);
       const { isServer } = await import("./runtime");
-      expect(isServer).toBe(true);
+      expect(isServer).toBeTruthy();
     });
 
-    it("window が定義されているとき、isServer が false となること", async () => {
+    it("isServer is false when window is defined", async () => {
       vi.stubGlobal("window", {});
       const { isServer } = await import("./runtime");
-      expect(isServer).toBe(false);
+      expect(isServer).toBeFalsy();
     });
   });
 });

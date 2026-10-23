@@ -28,13 +28,21 @@ export default defineConfig({
         plugins: [react()],
         test: {
           name: "unit",
+          include: ["src/**/*.{test,spec}.{ts,tsx}"],
           globals: true,
           environment: "happy-dom",
-          globalSetup: "./vitest.globalSetup.ts",
-          setupFiles: "./vitest.setup.ts",
+          globalSetup: "./vitest.global-setup.ts",
+          setupFiles: ["@testing-library/jest-dom/vitest"],
           restoreMocks: true,
           unstubEnvs: true,
           unstubGlobals: true,
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: "oxlint-rules",
+          include: ["tools/oxlint-rules/**/*.test.ts"],
         },
       },
       {

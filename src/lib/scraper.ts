@@ -22,24 +22,27 @@ interface RawSale {
   detail: string;
 }
 
-const ICON_TO_SERVICE: Record<string, string> = {
-  icon_001: "酒類取扱",
-  icon_002: "カフェ併設",
-  icon_006: "Tax Free",
-};
+const ICON_TO_SERVICE = new Map([
+  ["icon_001", "酒類取扱"],
+  ["icon_002", "カフェ併設"],
+  ["icon_006", "Tax Free"],
+]);
 
 function parseServiceIcons(
   $: CheerioAPI,
-  $row: ReturnType<CheerioAPI>,
+  $row: ReturnType<CheerioAPI>
 ): string[] {
   const services: string[] = [];
   $row.find('td[aria-label="お取り扱い"] img').each((_, img) => {
     const src = $(img).attr("src") ?? "";
-    const match = /(icon_\d+)/.exec(src);
-    if (match && ICON_TO_SERVICE[match[1]]) {
-      services.push(ICON_TO_SERVICE[match[1]]);
+    const icon = /(?<icon>icon_\d+)/u.exec(src)?.groups?.icon;
+    const service = icon === undefined ? undefined : ICON_TO_SERVICE.get(icon);
+
+    if (service !== undefined) {
+      services.push(service);
     }
   });
+
   return services;
 }
 
@@ -59,15 +62,16 @@ async function fetchStores(): Promise<RawStore[]> {
     const href = nameEl.attr("href") ?? "";
     const address = addressEl.text().trim();
 
-    const bidMatch = /bid=(\d+)/.exec(href);
-    if (!bidMatch || !name) {
+    const bid = /bid=(?<bid>\d+)/u.exec(href)?.groups?.bid;
+
+    if (bid === undefined || !name) {
       return;
     }
 
     const services = parseServiceIcons($, $(row));
 
     stores.push({
-      id: bidMatch[1],
+      id: bid,
       name,
       address,
       url: `https://map.kaldi.co.jp${href}`,
@@ -76,6 +80,7 @@ async function fetchStores(): Promise<RawStore[]> {
   });
 
   console.warn(`Fetched ${stores.length} stores`);
+
   return stores;
 }
 
@@ -83,18 +88,27 @@ function padZero(n: string): string {
   return n.padStart(2, "0");
 }
 
-function parseDateRange(text: string): { startDate: string; endDate: string } {
+interface DateRange {
+  startDate: string;
+  endDate: string;
+}
+
+function parseDateRange(text: string): DateRange {
   // "2026年3月5日(木) ～ 2026年3月9日(月)"
   const pattern =
-    /(\d{4})年(\d{1,2})月(\d{1,2})日.*?～\s*(\d{4})年(\d{1,2})月(\d{1,2})日/;
-  const m = pattern.exec(text);
-  if (!m) {
+    /(?<startYear>\d{4})年(?<startMonth>\d{1,2})月(?<startDay>\d{1,2})日.*?～\s*(?<endYear>\d{4})年(?<endMonth>\d{1,2})月(?<endDay>\d{1,2})日/u;
+
+  const groups = pattern.exec(text)?.groups;
+
+  if (groups === undefined) {
     return { startDate: "", endDate: "" };
   }
 
+  const { startYear, startMonth, startDay, endYear, endMonth, endDay } = groups;
+
   return {
-    startDate: `${m[1]}-${padZero(m[2])}-${padZero(m[3])}`,
-    endDate: `${m[4]}-${padZero(m[5])}-${padZero(m[6])}`,
+    startDate: `${startYear}-${padZero(startMonth)}-${padZero(startDay)}`,
+    endDate: `${endYear}-${padZero(endMonth)}-${padZero(endDay)}`,
   };
 }
 
@@ -115,15 +129,16 @@ async function fetchSales(): Promise<RawSale[]> {
     const detail = $(row).find("p.saledetail").text().trim();
 
     const href = storeLink.attr("href") ?? "";
-    const bidMatch = /bid=(\d+)/.exec(href);
-    if (!bidMatch || !type) {
+    const bid = /bid=(?<bid>\d+)/u.exec(href)?.groups?.bid;
+
+    if (bid === undefined || !type) {
       return;
     }
 
     const { startDate, endDate } = parseDateRange(dateText);
 
     sales.push({
-      storeId: bidMatch[1],
+      storeId: bid,
       type,
       status,
       startDate,
@@ -133,19 +148,21 @@ async function fetchSales(): Promise<RawSale[]> {
   });
 
   console.warn(`Fetched ${sales.length} sales`);
+
   return sales;
 }
 
 const gsiGeocodeResponseSchema = z.array(
   z.object({
     geometry: z.object({
-      coordinates: z.tuple([z.number(), z.number()]), // [lng, lat]
+      // [lng, lat]
+      coordinates: z.tuple([z.number(), z.number()]),
     }),
-  }),
+  })
 );
 
 async function fetchGsi(
-  address: string,
+  address: string
 ): Promise<{ lat: number; lng: number } | null> {
   const url = `https://msearch.gsi.go.jp/address-search/AddressSearch?q=${encodeURIComponent(address)}`;
   const res = await fetch(url);
@@ -156,67 +173,85 @@ async function fetchGsi(
   }
 
   const [lng, lat] = parsed.data[0].geometry.coordinates;
+
   return { lat, lng };
 }
 
 // 京都の通り名表記（例: 三条通寺町東入）を除去して町名だけにする
-const KYOTO_STREET_PATTERN = /.+[区郡].+[通り].*[入ル]/;
+// Addresses are short strings, so the backtracking cost is bounded
+// oxlint-disable-next-line sonarjs/super-linear-regex
+const KYOTO_STREET_PATTERN = /.+[区郡].+[通り].*[入ル]/u;
 
 function simplifyAddress(address: string): string | null {
   if (!KYOTO_STREET_PATTERN.test(address)) {
     return null;
   }
+
   // 「〇〇区」の後ろから「入」「ル」までを除去し、残りの町名を直結
-  return address.replace(/([区郡])[^区郡]+?[入ル]/, "$1");
+  return address.replace(/(?<ward>[区郡])[^区郡]+?[入ル]/u, "$<ward>");
 }
 
 async function geocodeAddress(
-  address: string,
+  address: string
 ): Promise<{ lat: number; lng: number } | null> {
   const result = await fetchGsi(address);
+
   if (result) {
     return result;
   }
 
   const simplified = simplifyAddress(address);
+
   if (simplified !== null) {
     console.warn(`Retrying with simplified address: ${simplified}`);
     const retry = await fetchGsi(simplified);
+
     if (retry) {
       return retry;
     }
   }
 
   console.warn(`Geocoding failed for: ${address}`);
+
   return null;
 }
 
 async function resolveAllCoords(
   rawStores: RawStore[],
-  cachedCoords: Map<string, { lat: number; lng: number }>,
+  cachedCoords: Map<string, { lat: number; lng: number }>
 ): Promise<Map<string, { lat: number; lng: number }>> {
   const result = new Map(cachedCoords);
 
   const uncached = rawStores.filter((raw) => !cachedCoords.has(raw.id));
 
-  await uncached.reduce(async (prev, raw) => {
-    await prev;
+  for (const raw of uncached) {
+    // Geocode one at a time to stay within the GSI API rate limit
+    // oxlint-disable-next-line eslint/no-await-in-loop, react-doctor/async-await-in-loop
     const coords = await geocodeAddress(raw.address);
+
     if (coords) {
       result.set(raw.id, coords);
     }
-  }, Promise.resolve());
+  }
 
   return result;
 }
 
+/**
+ * Scrapes stores and sales from the KALDI store map and merges them. Stores
+ * without cached coordinates are geocoded with the GSI API.
+ *
+ * @param cachedCoords - Coordinates already stored in the DB, keyed by store ID
+ * @returns Stores with coordinates and their sales
+ */
 export async function buildStoresData(
-  cachedCoords: Map<string, { lat: number; lng: number }>,
+  cachedCoords: Map<string, { lat: number; lng: number }>
 ): Promise<StoresData> {
   const [rawStores, sales] = await Promise.all([fetchStores(), fetchSales()]);
 
   // Group sales by store ID
   const salesByStore = new Map<string, RawSale[]>();
+
   for (const sale of sales) {
     const list = salesByStore.get(sale.storeId) ?? [];
     list.push(sale);
@@ -229,6 +264,7 @@ export async function buildStoresData(
   // Merge
   const stores: Store[] = rawStores.flatMap((raw) => {
     const coords = resolvedCoords.get(raw.id);
+
     if (!coords) {
       return [];
     }

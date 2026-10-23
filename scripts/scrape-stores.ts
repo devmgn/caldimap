@@ -1,28 +1,34 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { resolve } from "node:path";
+import path from "node:path";
 import { parseArgs } from "node:util";
+import { storesDataSchema } from "./stores-data-schema";
 
 const { loadEnvConfig } = await import("@next/env");
-loadEnvConfig(resolve(import.meta.dirname, ".."));
 
-const DATA_DIR = resolve(import.meta.dirname, "../src/data");
-const OUTPUT_PATH = resolve(DATA_DIR, "stores.json");
+loadEnvConfig(path.resolve(import.meta.dirname, ".."));
+
+const DATA_DIR = path.resolve(import.meta.dirname, "../src/data");
+const OUTPUT_PATH = path.resolve(DATA_DIR, "stores.json");
 
 const { values } = parseArgs({
   options: { "no-cache": { type: "boolean", default: false } },
 });
 
+function hasDbConfig(): boolean {
+  const url = process.env.DATABASE_URL ?? process.env.DATABASE_URL_POOLED;
+
+  return url !== undefined && url !== "";
+}
+
 async function loadCoordsCache(): Promise<
   Map<string, { lat: number; lng: number }>
 > {
-  const hasDbConfig =
-    process.env.DATABASE_URL ?? process.env.DATABASE_URL_POOLED;
-
-  if (hasDbConfig) {
+  if (hasDbConfig()) {
     try {
       const { getStoreCoordsCache } = await import("../src/db/queries/stores");
       const coords = await getStoreCoordsCache();
       console.warn(`Loaded ${coords.size} cached coordinates from database`);
+
       return coords;
     } catch {
       console.warn("Failed to load coordinates from DB, falling back to JSON");
@@ -30,12 +36,18 @@ async function loadCoordsCache(): Promise<
   }
 
   if (existsSync(OUTPUT_PATH)) {
-    const existing = JSON.parse(readFileSync(OUTPUT_PATH, "utf8"));
+    const existing = storesDataSchema.parse(
+      JSON.parse(readFileSync(OUTPUT_PATH, "utf-8"))
+    );
+
     const coords = new Map<string, { lat: number; lng: number }>();
+
     for (const s of existing.stores) {
       coords.set(s.id, { lat: s.lat, lng: s.lng });
     }
+
     console.warn(`Loaded ${coords.size} cached coordinates from local JSON`);
+
     return coords;
   }
 
@@ -46,6 +58,7 @@ async function main() {
   const { buildStoresData } = await import("../src/lib/scraper");
 
   const skipCache = values["no-cache"];
+
   const cachedCoords = skipCache
     ? new Map<string, { lat: number; lng: number }>()
     : await loadCoordsCache();
@@ -60,13 +73,15 @@ async function main() {
   if (!existsSync(DATA_DIR)) {
     mkdirSync(DATA_DIR, { recursive: true });
   }
-  writeFileSync(OUTPUT_PATH, JSON.stringify(output, null, 2), "utf8");
+
+  writeFileSync(OUTPUT_PATH, JSON.stringify(output, null, 2), "utf-8");
   console.warn(`Saved ${output.stores.length} stores to ${OUTPUT_PATH}`);
 
   // Write to database if configured
-  if (process.env.DATABASE_URL ?? process.env.DATABASE_URL_POOLED) {
+  if (hasDbConfig()) {
     const { logScrape, upsertStoresAndSales } =
       await import("../src/db/queries/stores");
+
     await upsertStoresAndSales(output);
     await logScrape(output.stores.length);
     console.warn(`Upserted ${output.stores.length} stores to database`);

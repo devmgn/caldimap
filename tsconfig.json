@@ -22,7 +22,7 @@
       }
     ],
     "noErrorTruncation": true,
-    "types": ["vitest/globals"]
+    "types": ["vitest/globals", "@testing-library/jest-dom/vitest"]
   },
   "include": [
     ".next/dev/types/**/*.ts",
@@ -32,15 +32,15 @@
     "drizzle.config.ts",
     "next-env.d.ts",
     "next.config.ts",
+    "oxfmt.config.ts",
     "oxlint.config.ts",
     "postcss.config.mjs",
-    "scripts/**/*.mjs",
     "scripts/**/*.ts",
     "src/**/*.ts",
     "src/**/*.tsx",
+    "tools/lint-ignore/**/*.ts",
     "vitest.config.ts",
-    "vitest.globalSetup.ts",
-    "vitest.shims.d.ts"
+    "vitest.global-setup.ts"
   ],
   "exclude": ["node_modules", "src/api/openapi"]
 }

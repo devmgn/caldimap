@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Toaster } from "sonner";
-import { RootProvider } from "../providers/RootProvider";
+import { RootProvider } from "../providers/root-provider";
 import "../lib/styles/globals.css";
 
 export const metadata: Metadata = {
@@ -17,6 +17,12 @@ export const viewport: Viewport = {
   maximumScale: 1,
 };
 
+/**
+ * Root layout for the whole app. Places the providers and the Toaster.
+ *
+ * @param props - The nested page
+ * @returns The app's HTML document
+ */
 export default function Layout(props: React.PropsWithChildren) {
   const { children } = props;
 

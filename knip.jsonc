@@ -1,24 +1,23 @@
 {
   "$schema": "./node_modules/knip/schema-jsonc.json",
-  "ignore": ["src/**/openapi/**", "src/mocks/**", "scripts/**"],
-  "ignoreBinaries": ["openapiconfig.json"],
+  "ignore": ["scripts/**", "tools/**"],
   "ignoreDependencies": [
     "@tanstack/eslint-plugin-query",
     "@testing-library/user-event",
-    "eslint",
-    "eslint-plugin-import",
-    "eslint-plugin-react-hooks",
+    "eslint-plugin-github",
+    "eslint-plugin-jsdoc",
+    "eslint-plugin-sonarjs",
     "eslint-plugin-storybook",
-    "postcss",
-    "postcss-load-config",
+    "eslint-plugin-tsdoc",
+    "oxlint-plugin-react-doctor",
   ],
   "oxlint": {
     "config": ["oxlint.config.ts", "oxfmt.config.ts"],
   },
   "storybook": {
     "entry": [
-      ".storybook/{preview,vitest.setup}.tsx",
-      ".storybook/SbProvider.tsx",
+      ".storybook/preview.tsx",
+      ".storybook/sb-provider.tsx",
       "src/**/*.stories.@(js|jsx|ts|tsx)",
     ],
   },
@@ -26,11 +25,6 @@
     "entry": ["src/lib/styles/globals.css"],
   },
   "vitest": {
-    "entry": [
-      "**/*.{test,spec}.{ts,tsx}",
-      ".storybook/vitest.setup.ts",
-      "vitest.globalSetup.ts",
-      "vitest.setup.ts",
-    ],
+    "entry": ["**/*.{test,spec}.{ts,tsx}", "vitest.global-setup.ts"],
   },
 }
