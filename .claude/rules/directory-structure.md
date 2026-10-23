@@ -12,7 +12,7 @@ Top-level entries fall into **3 layers**:
 
 - **Contract**: shared data shapes and type declarations (`types/`)
 - **Generic**: UI / logic portable outside this project (`components/`, `hooks/`, `utils/`)
-- **App-specific**: this app's config, integrations, and glue (`lib/`, `providers/`)
+- **App-specific**: this app's config, integrations, and glue (`lib/`, `providers/`, `env.ts`, `instrumentation-client.ts`)
 
 | Path | Layer | Role |
 | --- | --- | --- |
@@ -23,6 +23,8 @@ Top-level entries fall into **3 layers**:
 | `utils/` | Generic | Logic portable outside this project |
 | `lib/` | App-specific | App-specific config, integrations (DB, scraper), and glue |
 | `providers/` | App-specific | Context providers wrapping the whole app |
+| `env.ts` | App-specific | Typed environment variables |
+| `instrumentation-client.ts` | App-specific | Next.js client instrumentation hook |
 
 Import direction between layers (e.g. generic code must not import app-specific code) is enforced by `boundaries` in `fallow.toml`. `requireAllFiles` makes every file under `src/` belong to a zone, so a new top-level entry also needs a zone and rules there.
 

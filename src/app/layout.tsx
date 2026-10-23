@@ -1,15 +1,16 @@
 import type { Metadata, Viewport } from "next";
-import { NuqsAdapter } from "nuqs/adapters/next/app";
+import { NuqsAdapter } from "nuqs/adapters/react";
 import { Toaster } from "sonner";
+import { ENV } from "../env";
 import { WebVitalsReporter } from "../lib/web-vitals-reporter";
 import { QueryClientProvider } from "../providers/query-client-provider";
 import { isProduction } from "../utils/runtime";
 import "../lib/styles/globals.css";
 
 export const metadata: Metadata = {
-  title: "カルディ・マップ",
-  description:
-    "カルディコーヒーファームの店舗情報とセール情報を地図上で確認できるサイトです",
+  metadataBase: new URL(ENV.SITE_URL),
+  title: ENV.APP_NAME,
+  description: ENV.DEFAULT_DESCRIPTION,
   icons: ["images/favicon.ico"],
   robots: { index: false, follow: false },
 };

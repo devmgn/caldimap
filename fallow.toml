@@ -96,7 +96,7 @@ patterns = ["src/utils/**"]
 [[boundaries.zones]]
 # App-specific: configuration, integrations (DB, scraper), and glue
 name = "lib"
-patterns = ["src/lib/**"]
+patterns = ["src/lib/**", "src/env.ts", "src/instrumentation-client.ts"]
 
 [[boundaries.zones]]
 # App-specific: Context Providers wrapping the whole app
