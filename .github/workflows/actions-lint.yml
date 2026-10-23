@@ -4,6 +4,8 @@ on:
   push:
     paths:
       - ".github/**"
+      - "mise.toml"
+      - "mise.lock"
   workflow_dispatch:
 
 concurrency:
@@ -12,25 +14,27 @@ concurrency:
 
 permissions:
   contents: read
-  security-events: write
 
 jobs:
   ActionsLint:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
     steps:
       - name: Checkout
-        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
+      - name: Install actionlint and zizmor
+        uses: jdx/mise-action@8418fedb1110381a0d3ba51a7a415d7c1b884550 # v5.2.2
+        with:
+          install_args: actionlint aqua:zizmorcore/zizmor
+
       - name: actionlint
-        run: |
-          bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
-          ./actionlint -color
-        shell: bash
+        run: actionlint -color
 
       - name: zizmor
-        uses: zizmorcore/zizmor-action@71321a20a9ded102f6e9ce5718a2fcec2c4f70d8 # v0.5.2
+        run: zizmor .github/
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Used for online audits (impostor-commit, etc.)
+          GH_TOKEN: ${{ github.token }}

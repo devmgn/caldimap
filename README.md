@@ -17,6 +17,7 @@
 ## Getting Started
 
 ```bash
+mise install
 pnpm install
 pnpm dev
 ```

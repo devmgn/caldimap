@@ -1,0 +1,5 @@
+self-hosted-runner:
+  labels:
+    # Workaround for actionlint v1.7.12 rejecting ubuntu-26.04 as an unknown label.
+    # Remove once upgraded to a release that includes the upstream fix (rhysd/actionlint#682)
+    - ubuntu-26.04
