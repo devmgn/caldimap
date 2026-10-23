@@ -2,6 +2,7 @@ import type { Store, StoresData } from "../features/map/types";
 import type { CheerioAPI } from "cheerio";
 import { load } from "cheerio";
 import { z } from "zod";
+import { simplifyAddress } from "./simplify-address";
 
 const BASE_URL = "https://map.kaldi.co.jp/kaldi/articleList";
 
@@ -175,20 +176,6 @@ async function fetchGsi(
   const [lng, lat] = parsed.data[0].geometry.coordinates;
 
   return { lat, lng };
-}
-
-// 京都の通り名表記（例: 三条通寺町東入）を除去して町名だけにする
-// Addresses are short strings, so the backtracking cost is bounded
-// oxlint-disable-next-line sonarjs/super-linear-regex
-const KYOTO_STREET_PATTERN = /.+[区郡].+[通り].*[入ル]/u;
-
-function simplifyAddress(address: string): string | null {
-  if (!KYOTO_STREET_PATTERN.test(address)) {
-    return null;
-  }
-
-  // 「〇〇区」の後ろから「入」「ル」までを除去し、残りの町名を直結
-  return address.replace(/(?<ward>[区郡])[^区郡]+?[入ル]/u, "$<ward>");
 }
 
 async function geocodeAddress(
