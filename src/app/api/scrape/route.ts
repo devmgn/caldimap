@@ -1,7 +1,6 @@
 import type { NextRequest } from "next/server";
 import { getStoreCoordsCache } from "../../../lib/db/queries/get-store-coords-cache";
-import { logScrape } from "../../../lib/db/queries/log-scrape";
-import { upsertStoresAndSales } from "../../../lib/db/queries/upsert-stores-and-sales";
+import { saveScrapeResult } from "../../../lib/save-scrape-result";
 import { buildStoresData } from "../../../lib/scraper";
 
 /**
@@ -28,8 +27,7 @@ export async function GET(request: NextRequest) {
   try {
     const cachedCoords = await getStoreCoordsCache();
     const data = await buildStoresData(cachedCoords);
-    await upsertStoresAndSales(data);
-    await logScrape(data.stores.length);
+    await saveScrapeResult(data);
 
     return Response.json({
       success: true,
