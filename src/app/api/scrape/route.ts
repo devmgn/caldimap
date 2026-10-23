@@ -3,8 +3,8 @@ import {
   getStoreCoordsCache,
   logScrape,
   upsertStoresAndSales,
-} from "@/db/queries/stores";
-import { buildStoresData } from "@/lib/scraper";
+} from "../../../db/queries/stores";
+import { buildStoresData } from "../../../lib/scraper";
 
 export async function GET(request: NextRequest) {
   const cronSecret = process.env.CRON_SECRET;

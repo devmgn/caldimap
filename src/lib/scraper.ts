@@ -1,4 +1,4 @@
-import type { Store, StoresData } from "@/features/map/types";
+import type { Store, StoresData } from "../features/map/types";
 import type { CheerioAPI } from "cheerio";
 import { load } from "cheerio";
 import { z } from "zod";

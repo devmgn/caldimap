@@ -13,7 +13,7 @@ Prefer skill instructions over rules files when they conflict. Always consult th
 ### Core Technology Stack
 
 - **Next.js 16** with App Router, React 19, Turbopack, React Compiler (see `next.config.ts`)
-  - Node.js 24, pnpm 10 (exact versions in `package.json` / `mise.toml`)
+  - Node.js 24, pnpm 12 (exact versions in `package.json` / `mise.toml`)
 - **TypeScript** with strict type checking
 - **Tailwind CSS v4** with @tailwindcss/postcss
 - **TanStack Query** with queryOptions helper
