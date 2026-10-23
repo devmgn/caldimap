@@ -1,32 +1,15 @@
-import type { StoresData } from "../../types/stores-data";
 import { Suspense } from "react";
-import { MapPage } from "./_components/map-page";
-import { getStoresWithSales } from "../../lib/db/queries/get-stores-with-sales";
-
-export const dynamic = "force-dynamic";
-
-const EMPTY_DATA: StoresData = { updatedAt: "", stores: [] };
-
-async function loadStoresData(): Promise<StoresData> {
-  try {
-    return (await getStoresWithSales()) ?? EMPTY_DATA;
-  } catch {
-    // Render an empty map instead of failing the page when the DB is unreachable
-    return EMPTY_DATA;
-  }
-}
+import { MapPageContainer } from "./_components/map-page-container";
 
 /**
- * Top page. Loads stores and sales from the DB and renders the map.
+ * Top page. Streams the store map, which loads its data at request time.
  *
  * @returns The store map page
  */
-export default async function Home() {
-  const data = await loadStoresData();
-
+export default function Home() {
   return (
     <Suspense>
-      <MapPage data={data} />
+      <MapPageContainer />
     </Suspense>
   );
 }

@@ -18,3 +18,7 @@ runs:
       env:
         PNPM_CONFIG_TRUST_LOCKFILE: "false"
       run: pnpm install --frozen-lockfile --prefer-offline
+
+    - name: Setup environment
+      shell: bash
+      run: cp .env.development .env.local

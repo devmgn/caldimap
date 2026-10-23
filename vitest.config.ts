@@ -25,7 +25,7 @@ export default defineConfig({
     projects: [
       {
         extends: true,
-        plugins: [react()],
+        plugins: [react({ compiler: true })],
         test: {
           name: "unit",
           include: ["src/**/*.{test,spec}.{ts,tsx}"],
