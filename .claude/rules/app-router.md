@@ -13,9 +13,8 @@ Next.js convention files are the only files that sit flat in a route directory (
 
 ## Data Fetching
 
-- Server Component (`page.tsx`): query the DB directly through `src/lib/db/queries/` and pass the result to Client Components as props
-- Client Component: `"use client"` + TanStack Query (`queryOptions`) for client-side fetching
-- Build every `QueryClient` with `createQueryClientConfig()` (via `getQueryClient`, `src/lib/get-query-client`), never a shared config object: `QueryCache` / `MutationCache` hold the cache, so sharing them leaks data between server requests (and between stories)
+- Server Component: query the DB directly through `src/lib/db/queries/` and pass the result to Client Components as props
+- Client Components receive data as props; there is no client-side data fetching library (copy TanStack Query from nextjs-boilerplate if one becomes necessary)
 
 ### Under Cache Components
 

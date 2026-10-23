@@ -33,7 +33,7 @@ export const Default: Story = {};
 
 ## Assertions
 
-A story without a `play` function passes even if it renders the wrong data, so assert on the rendered result. Scope queries to the component (e.g. `within(canvas.getByRole("list", { name: "Articles" }))`): toasts from earlier stories stay in the DOM.
+A story without a `play` function passes even if it renders the wrong data, so assert on the rendered result. Scope queries to the component (e.g. `within(canvas.getByRole("list", { name: "Stores" }))`) rather than the whole document.
 
 ## MCP Integration
 

@@ -8,7 +8,7 @@
 | --------- | ---------------------------------------- |
 | Framework | Next.js 16 (App Router, Turbopack)       |
 | UI        | React 19, Tailwind CSS v4, Leaflet       |
-| State     | TanStack Query, nuqs (URL state)         |
+| State     | nuqs (URL state)                         |
 | Data      | Drizzle ORM, Neon Postgres, Zod v4       |
 | Linting   | Ultracite (Oxlint + Oxfmt)               |
 | Testing   | Vitest, Storybook 10                     |
