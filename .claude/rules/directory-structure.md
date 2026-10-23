@@ -33,7 +33,7 @@ Import direction between layers (e.g. generic code must not import app-specific 
 Decide by **portability**, not by side effects.
 
 - `utils/`: works unchanged in another project. Depending on standard APIs (`setTimeout`, `AbortController`, `process.env`, `window`, ...) is fine
-- `lib/`: tied to this app — e.g. `QueryClient` config, the DB client and queries, the store scraper, the Web Vitals destination, shared styles
+- `lib/`: tied to this app — e.g. the DB client and queries, the store scraper, the Web Vitals destination, shared styles
 
 Rules of thumb:
 
@@ -86,11 +86,11 @@ utils/
     is-value-of/
 
 lib/
-  get-query-client/          # feature entrypoint
-    get-query-client.ts
+  scraper/                   # feature entrypoint
+    scraper.ts
     index.ts
-    config/                  # internal to get-query-client
-      query-client-config.ts
+    utils/                   # internal to scraper (grouping, no index.ts)
+      parse-stores-page/
   db/                        # grouping
     get-db/
     queries/                 # grouping

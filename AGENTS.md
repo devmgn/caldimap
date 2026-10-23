@@ -4,14 +4,13 @@
   - Node.js 24, pnpm 12 (exact versions in `package.json` / `mise.toml`)
 - **TypeScript** with strict type checking
 - **Tailwind CSS v4** via `@tailwindcss/turbopack` (Next.js) / `@tailwindcss/vite` (Storybook)
-- **TanStack Query** with `queryOptions` (`getQueryClient` in `src/lib/get-query-client/`)
 - **Zod v4** for runtime validation (scraped responses, `data/stores.json`)
 - **nuqs** for URL state (`NuqsAdapter` in `src/app/layout.tsx`)
 - **Drizzle ORM** with Neon Postgres (`src/lib/db/`, migrations in `drizzle/`)
 - **Leaflet** (react-leaflet) for map rendering
 - **Ultracite** (Oxlint + Oxfmt preset) for linting and formatting — entry points are `pnpm check` / `pnpm fix`
-  - Presets (`oxlint.config.ts`): core, react, next, tanstack, vitest, storybook, anti-slop + js-plugins (github, jsdoc-js, sonarjs, tsdoc, react-doctor)
-  - jsPlugins: `@tanstack/eslint-plugin-query`, `eslint-plugin-storybook` (stories only), own rules in `tools/oxlint-rules/`
+  - Presets (`oxlint.config.ts`): core, react, next, vitest, storybook, anti-slop + js-plugins (github, jsdoc-js, sonarjs, tsdoc, react-doctor)
+  - jsPlugins: `eslint-plugin-storybook` (stories only), own rules in `tools/oxlint-rules/`
   - Type-aware lint + type check enabled (oxlint-tsgolint); TS compiler diagnostics surface as lint errors, so there is no separate `tsc --noEmit` script
   - Suppress comments: `// oxlint-disable-next-line <rule>` (`eslint-disable` is NOT honored; unused directives are errors)
   - Ignore lists live in `tools/lint-ignore/` and are shared by `oxlint.config.ts` / `oxfmt.config.ts` (`fallow.toml` cannot import them, so sync manually)
@@ -23,7 +22,7 @@
 
 ## Key Patterns
 
-- **State management**: TanStack Query (server state), nuqs (URL state), no global client state
+- **State management**: Server Components pass data down as props, nuqs (URL state), no global client state. There is no client-side data fetching library; copy TanStack Query from nextjs-boilerplate if one becomes necessary
 - **Data flow**: `pnpm scrape` and the `/api/scrape` cron route scrape the KALDI store map (`src/lib/scraper/`) into Postgres; `src/app/(map)/page.tsx` reads it via `src/lib/db/queries/`
 - **Language**: write docs, code comments, test titles, and commit messages in English. User-facing UI copy is out of scope (`<html lang="ja">`)
 
@@ -55,7 +54,7 @@ Prefer skill instructions over rules files when they conflict. Always consult th
 | Purpose | MCP Tool |
 | --- | --- |
 | **Next.js official docs** | `next-devtools` (`nextjs_docs`, `nextjs_index`, `nextjs_call`) |
-| **Other libraries** (React, TanStack Query, Zod, Tailwind, etc.) | `context7` (`resolve-library-id` → `query-docs`) |
+| **Other libraries** (React, Zod, Tailwind, Drizzle, etc.) | `context7` (`resolve-library-id` → `query-docs`) |
 | **Vitest docs** | `WebFetch` → `https://vitest.dev/llms-full.txt` |
 | **Storybook UI dev** (stories, component docs) | `storybook-mcp` (see `.claude/rules/storybook.md` for full tool list) |
 

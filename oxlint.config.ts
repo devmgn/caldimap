@@ -6,8 +6,6 @@ import next from "ultracite/oxlint/next";
 import nextJsPlugins from "ultracite/oxlint/next/js-plugins";
 import react from "ultracite/oxlint/react";
 import storybook from "ultracite/oxlint/storybook";
-import tanstack from "ultracite/oxlint/tanstack";
-import tanstackJsPlugins from "ultracite/oxlint/tanstack/js-plugins";
 import vitest from "ultracite/oxlint/vitest";
 import {
   generatedSources,
@@ -29,11 +27,9 @@ export default defineConfig({
     core,
     react,
     next,
-    tanstack,
     vitest,
     storybook,
     nextJsPlugins,
-    tanstackJsPlugins,
     antiSlop,
     jsPlugins,
   ],
@@ -43,11 +39,7 @@ export default defineConfig({
     ...generatedSources,
     ...vendoredSources,
   ],
-  jsPlugins: [
-    ...jsPlugins.jsPlugins,
-    "./tools/oxlint-rules/index.ts",
-    "@tanstack/eslint-plugin-query",
-  ],
+  jsPlugins: [...jsPlugins.jsPlugins, "./tools/oxlint-rules/index.ts"],
   settings: {
     ...jsPluginSettings,
     vitest: { typecheck: true },
@@ -62,6 +54,10 @@ export default defineConfig({
     // Forbid console.log. Allow warn / error as intentional output
     "eslint/no-console": ["error", { allow: ["error", "warn"] }],
 
+    // The Ultracite tanstack preset turned this off in nextjs-boilerplate; keep
+    // the same behaviour now that the preset is gone
+    "eslint/sort-keys": "off",
+
     // custom-rules/no-restricted-syntax forbids top-level arrows, which conflicts
     // with func-style enforcing expressions
     "eslint/func-style": "off",
@@ -69,16 +65,6 @@ export default defineConfig({
       "error",
       { namedComponents: "function-declaration" },
     ],
-
-    // ── @tanstack/eslint-plugin-query (jsPlugin) ──
-    "@tanstack/query/exhaustive-deps": "error",
-    "@tanstack/query/infinite-query-property-order": "error",
-    "@tanstack/query/mutation-property-order": "error",
-    "@tanstack/query/no-rest-destructuring": "error",
-    "@tanstack/query/no-unstable-deps": "error",
-    "@tanstack/query/no-void-query-fn": "error",
-    "@tanstack/query/prefer-query-options": "error",
-    "@tanstack/query/stable-query-client": "error",
 
     // ── custom rules (jsPlugin: ./tools/oxlint-rules/) ──
     "custom-rules/no-index-tsx": "error",
@@ -121,9 +107,6 @@ export default defineConfig({
         "storybook/story-exports": "error",
         "storybook/use-storybook-expect": "error",
         "storybook/use-storybook-testing-library": "error",
-
-        // ── @tanstack/eslint-plugin-query (jsPlugin) ──
-        "@tanstack/query/prefer-query-options": "off",
       },
     },
     {
