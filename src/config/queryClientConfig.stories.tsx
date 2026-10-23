@@ -1,13 +1,17 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { expect, screen, waitFor } from "storybook/test";
+
+const ERROR_MESSAGE = "サーバーエラーが発生しました";
+const ERROR_STATE_LABEL = "クエリはエラー状態です";
 
 function ErrorToastDemo(props: { skipToast?: boolean }) {
   const { skipToast } = props;
-  const { refetch } = useQuery({
+  const { isError, refetch } = useQuery({
     queryKey: ["error-toast-demo", skipToast],
     queryFn: () => {
-      throw new Error("サーバーエラーが発生しました");
+      throw new Error(ERROR_MESSAGE);
     },
     enabled: false,
     retry: false,
@@ -15,14 +19,17 @@ function ErrorToastDemo(props: { skipToast?: boolean }) {
   });
 
   return (
-    <button
-      type="button"
-      onClick={() => {
-        void refetch();
-      }}
-    >
-      {skipToast === true ? "エラー発生 (トースト抑制)" : "エラー発生"}
-    </button>
+    <div className="flex flex-col items-center gap-4">
+      <button
+        type="button"
+        onClick={() => {
+          void refetch();
+        }}
+      >
+        {skipToast === true ? "エラー発生 (トースト抑制)" : "エラー発生"}
+      </button>
+      {isError && <p>{ERROR_STATE_LABEL}</p>}
+    </div>
   );
 }
 
@@ -36,6 +43,13 @@ const meta = {
       control: { type: "boolean" },
     },
   },
+  // sonner toasts are held at module level and persist across stories, so dismiss them before each start
+  beforeEach: async () => {
+    toast.dismiss();
+    await waitFor(async () => {
+      await expect(screen.queryByText(ERROR_MESSAGE)).not.toBeInTheDocument();
+    });
+  },
 } satisfies Meta<typeof ErrorToastDemo>;
 
 export default meta;
@@ -43,11 +57,9 @@ type Story = StoryObj<typeof ErrorToastDemo>;
 export const Default: Story = {
   tags: ["!manifest"],
   play: async ({ canvas }) => {
-    canvas.getByRole("button").click();
+    canvas.getByRole("button", { name: "エラー発生" }).click();
     await waitFor(async () => {
-      await expect(
-        screen.getByText("サーバーエラーが発生しました"),
-      ).toBeVisible();
+      await expect(screen.getByText(ERROR_MESSAGE)).toBeVisible();
     });
   },
 };
@@ -55,9 +67,10 @@ export const Default: Story = {
 export const SkipToast: Story = {
   args: { skipToast: true },
   play: async ({ canvas }) => {
-    canvas.getByRole("button").click();
-    await expect(
-      canvas.queryByText("サーバーエラーが発生しました"),
-    ).not.toBeInTheDocument();
+    canvas.getByRole("button", { name: "エラー発生 (トースト抑制)" }).click();
+
+    // Confirm the query has errored before asserting that no toast is shown
+    await expect(await canvas.findByText(ERROR_STATE_LABEL)).toBeVisible();
+    await expect(screen.queryByText(ERROR_MESSAGE)).not.toBeInTheDocument();
   },
 };

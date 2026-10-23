@@ -21,20 +21,22 @@ GET https://map.kaldi.co.jp/kaldi/articleList?template=Ctrl/DispListArticle_g12&
 ```
 
 HTMLフラグメントが返る。セレクタ:
-| 要素 | セレクタ |
-|---|---|
-| テーブル | `table.cz_sp_table` |
-| 店舗名リンク | `td[itemprop="name"] a` |
-| 店舗ID | リンクhrefの `bid=` パラメータ |
-| 住所 | `td[itemprop="address"]` |
+
+| 要素         | セレクタ                                        |
+| ------------ | ----------------------------------------------- |
+| テーブル     | `table.cz_sp_table`                             |
+| 店舗名リンク | `td[itemprop="name"] a`                         |
+| 店舗ID       | リンクhrefの `bid=` パラメータ                  |
+| 住所         | `td[itemprop="address"]`                        |
 | 取扱サービス | `td[aria-label="お取り扱い"] img` の `src` 属性 |
 
 取扱サービス: 一覧ページの`img`の`src`ファイル名でマッピング。ラベルは詳細ページの表記に準拠:
-| アイコン | サービス名（詳細ページ表記） |
-|---|---|
-| `icon_001.svg` | 酒類取扱 |
-| `icon_002.svg` | カフェ併設 |
-| `icon_006.svg` | Tax Free |
+
+| アイコン       | サービス名（詳細ページ表記） |
+| -------------- | ---------------------------- |
+| `icon_001.svg` | 酒類取扱                     |
+| `icon_002.svg` | カフェ併設                   |
+| `icon_006.svg` | Tax Free                     |
 
 ### セール情報（accmd=1）
 
@@ -43,15 +45,16 @@ GET https://map.kaldi.co.jp/kaldi/articleList?account=kaldi&accmd=1&ftop=1&kkw00
 ```
 
 全件1ページ表示。セレクタ:
-| 要素 | セレクタ |
-|---|---|
+
+| 要素       | セレクタ                              |
+| ---------- | ------------------------------------- |
 | セール状態 | `span.saleicon` （"開催中" / "予告"） |
-| セール種別 | `span.saletitle` |
-| 店舗名 | `span.salename a` |
-| 店舗ID | リンクhrefの `bid=` |
-| 住所 | `span.saleadress` |
-| セール期間 | `p.saledate` |
-| セール内容 | `p.saledetail` |
+| セール種別 | `span.saletitle`                      |
+| 店舗名     | `span.salename a`                     |
+| 店舗ID     | リンクhrefの `bid=`                   |
+| 住所       | `span.saleadress`                     |
+| セール期間 | `p.saledate`                          |
+| セール内容 | `p.saledetail`                        |
 
 ---
 
@@ -115,9 +118,9 @@ pnpm add -D cheerio
 **Step 2: スクレイピングスクリプトを作成**
 
 ```typescript
-import * as cheerio from "cheerio";
 import { writeFileSync, mkdirSync, existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import * as cheerio from "cheerio";
 
 const BASE_URL = "https://map.kaldi.co.jp/kaldi/articleList";
 const DATA_DIR = resolve(import.meta.dirname, "../src/data");
@@ -566,9 +569,9 @@ git commit -m "feat: add StoreMap component with Google Maps"
 // useSaleFilter.ts
 "use client";
 
+import type { Store } from "../types";
 import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
 import { useMemo } from "react";
-import type { Store } from "../types";
 
 function useSaleFilter(stores: Store[]) {
   const [selectedSales, setSelectedSales] = useQueryState(

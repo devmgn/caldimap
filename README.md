@@ -12,7 +12,7 @@
 | Data      | Drizzle ORM, Neon Postgres, Zod v4       |
 | Linting   | OxC (Oxlint + Oxfmt)                     |
 | Testing   | Vitest, Storybook 10                     |
-| Language  | TypeScript (strict), Node.js 24, pnpm 10 |
+| Language  | TypeScript (strict), Node.js 24, pnpm 12 |
 
 ## Getting Started
 

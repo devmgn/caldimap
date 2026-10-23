@@ -1,4 +1,4 @@
-import type { Store, StoresData } from "@/features/map/types";
+import type { Store, StoresData } from "../../features/map/types";
 import { eq, inArray, sql } from "drizzle-orm";
 import { getDb } from "..";
 import { sales } from "../schema/sales";

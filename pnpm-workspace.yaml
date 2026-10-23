@@ -1,5 +1,13 @@
 minimumReleaseAge: 1440
 trustPolicy: no-downgrade
+# Skip re-verifying the entire lockfile: it gets OOM-killed on Mend-hosted Renovate (3GB).
+# CI overrides this with PNPM_CONFIG_TRUST_LOCKFILE=false to keep full verification.
+trustLockfile: true
+trustPolicyExclude:
+  # semver@6.3.1 (published in 2023, a transitive dep via @babel/core / styled-jsx) is
+  # signed only and has no provenance. It trips no-downgrade because semver@7.x in the same
+  # tree has provenance, but the cause is a legacy release of an old major line, not a takeover.
+  - semver@6.3.1
 allowBuilds:
   esbuild: true
   sharp: true

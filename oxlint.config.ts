@@ -54,6 +54,26 @@ export default defineConfig({
     suspicious: "error",
   },
   rules: {
+    // ── New in oxlint 1.89. Disabled until the config moves to the Ultracite presets ──
+    "eslint/no-use-before-define": "off",
+    "eslint/one-var": "off",
+    "eslint/prefer-named-capture-group": "off",
+    "eslint/require-unicode-regexp": "off",
+    "node/no-sync": "off",
+    "node/no-top-level-await": "off",
+    "react/forbid-component-props": "off",
+    "react/hook-use-state": "off",
+    "react/jsx-no-literals": "off",
+    "react/no-unstable-nested-components": "off",
+    "unicorn/import-style": "off",
+    "unicorn/max-nested-calls": "off",
+    "vitest/no-hooks": "off",
+    "vitest/prefer-expect-assertions": "off",
+    "vitest/prefer-importing-vitest-globals": "off",
+    "vitest/prefer-lowercase-title": "off",
+    "vitest/require-mock-type-parameters": "off",
+    "vitest/require-test-timeout": "off",
+
     // ── eslint built-in rules ──
     "eslint/arrow-body-style": "off",
     "eslint/capitalized-comments": "off",
@@ -145,7 +165,6 @@ export default defineConfig({
     "@tanstack/query/stable-query-client": "error",
 
     // ── react-compiler-rules (jsPlugin: eslint-plugin-react-hooks) ──
-    "react-compiler-rules/automatic-effect-dependencies": "error",
     "react-compiler-rules/capitalized-calls": "error",
     "react-compiler-rules/component-hook-factories": "error",
     "react-compiler-rules/config": "error",
