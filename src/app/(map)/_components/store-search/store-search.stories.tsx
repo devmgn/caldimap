@@ -225,6 +225,37 @@ export const EnterAfterClosingTakesFirstResult: Story = {
   },
 };
 
+export const PointerLeavingKeepsHighlight: Story = {
+  play: async ({ args, canvasElement }) => {
+    const input = getInput(canvasElement);
+
+    await userEvent.type(input, "アトレ");
+
+    const second = await page.findByRole("option", {
+      name: /アトレヴィ三鷹店/u,
+    });
+
+    // Point at the second result, then leave the list for the input. Base UI
+    // highlights on mousemove and only treats the leave as a pointer's after a
+    // pointermove over the list
+    await fireEvent.pointerMove(second, { pointerType: "mouse" });
+    await fireEvent.mouseMove(second);
+    await waitFor(async () => {
+      await expect(highlightedOption()).toHaveTextContent("アトレヴィ三鷹店");
+    });
+    await fireEvent.pointerOut(second, {
+      pointerType: "mouse",
+      relatedTarget: input,
+    });
+
+    await expect(highlightedOption()).toHaveTextContent("アトレヴィ三鷹店");
+
+    await userEvent.keyboard("{Enter}");
+
+    await expect(args.onSelect).toHaveBeenCalledWith(STORES[1]);
+  },
+};
+
 export const ClickSelection: Story = {
   play: async ({ args, canvasElement }) => {
     await userEvent.type(getInput(canvasElement), "大宮");
