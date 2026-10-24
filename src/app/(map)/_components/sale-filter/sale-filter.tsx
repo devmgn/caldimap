@@ -3,6 +3,8 @@
 import type { PeriodFilter } from "../../_hooks/use-sale-filter";
 import { useId } from "react";
 import { formatUpdatedAt } from "./utils/format-updated-at";
+import { isStale } from "./utils/is-stale";
+import { useToday } from "../../_hooks/use-today";
 
 const PERIOD_OPTIONS = [
   { value: null, label: "すべて" },
@@ -23,7 +25,8 @@ interface SaleFilterProps {
 
 /**
  * Panel that narrows the map to stores holding a sale of the selected types
- * and period, with the store counts and when the data was scraped.
+ * and period, with the store counts and when the data was scraped. The scrape
+ * time turns into a warning once it's older than the schedule allows.
  *
  * @param props - The sale types and period with their current selection and
  *   handlers, the store counts, and the scrape time
@@ -43,6 +46,11 @@ export function SaleFilter({
   // Radios group by name, so keep it unique per panel
   const periodName = useId();
   const selected = new Set(selectedSales);
+  // Unknown until hydration: the prerendered "today" is the build date
+  const today = useToday();
+
+  const stale =
+    updatedAt !== null && today !== null && isStale(updatedAt, today);
 
   return (
     <div className="flex flex-col gap-3 rounded-lg border bg-white p-4 shadow-sm">
@@ -93,8 +101,10 @@ export function SaleFilter({
           {filteredCount} / {totalCount} 店舗表示中
         </p>
         {updatedAt !== null && (
-          <p>
+          // Said in words too, not only by color
+          <p className={stale ? "font-semibold text-amber-700" : undefined}>
             <time dateTime={updatedAt}>{formatUpdatedAt(updatedAt)}</time> 更新
+            {stale ? "（情報が古い可能性があります）" : null}
           </p>
         )}
       </div>
