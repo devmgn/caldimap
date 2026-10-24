@@ -38,6 +38,19 @@ export default defineConfig({
         },
       },
       {
+        // Code that must not depend on the runtime time zone, run where it is
+        // UTC like the servers that prerender pages. A time zone change only
+        // takes effect on a process's main thread, hence forks, not threads
+        extends: true,
+        test: {
+          name: "unit-utc",
+          include: ["src/**/*.test-utc.ts"],
+          environment: "node",
+          pool: "forks",
+          env: { TZ: "UTC" },
+        },
+      },
+      {
         extends: true,
         test: {
           name: "oxlint-rules",

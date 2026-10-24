@@ -14,7 +14,7 @@ pnpm lint:dead-code                 # Dead code detection (fallow dead-code + --
 pnpm lint:fallow                    # Full fallow scan: dead-code + dupes + health + security (advisory, not in check)
 mise run lint:workflows             # GitHub Actions lint (actionlint + zizmor)
 pnpm test                           # Run all tests
-pnpm test:unit                      # Unit tests only (typecheck included)
+pnpm test:unit                      # Unit tests (typecheck included) plus the TZ=UTC project
 pnpm test:oxlint-rules              # Tests for the custom oxlint rules in tools/
 pnpm test:watch                     # Watch mode
 pnpm test:coverage                  # Tests with coverage report

@@ -6,19 +6,20 @@ import { sales } from "../schema/sales";
 import { scrapeLogs } from "../schema/scrape-logs";
 import { stores } from "../schema/stores";
 
-type Schema = typeof schema;
+const dbSchema = { stores, sales, scrapeLogs };
 
-const schema = { stores, sales, scrapeLogs };
+/** The app database's tables, as Drizzle types them. */
+export type DbSchema = typeof dbSchema;
 
 let client: Sql | null = null;
-let instance: PostgresJsDatabase<Schema> | null = null;
+let instance: PostgresJsDatabase<DbSchema> | null = null;
 
 /**
  * Returns the Drizzle client, connecting lazily on first use.
  *
  * @returns The Drizzle client
  */
-export function getDb(): PostgresJsDatabase<Schema> {
+export function getDb(): PostgresJsDatabase<DbSchema> {
   if (instance === null) {
     const url = process.env.DATABASE_URL_POOLED ?? process.env.DATABASE_URL;
 
@@ -27,7 +28,7 @@ export function getDb(): PostgresJsDatabase<Schema> {
     }
 
     client = postgres(url);
-    instance = drizzle({ client, schema });
+    instance = drizzle({ client, schema: dbSchema });
   }
 
   return instance;
