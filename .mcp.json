@@ -1,20 +1,20 @@
 {
   "mcpServers": {
     "context7": {
-      "args": ["-y", "@upstash/context7-mcp@latest"],
-      "command": "npx"
+      "args": ["exec", "context7-mcp"],
+      "command": "pnpm"
     },
     "fallow": {
-      "args": ["fallow-mcp"],
-      "command": "npx"
+      "args": ["exec", "fallow-mcp"],
+      "command": "pnpm"
     },
     "next-devtools": {
-      "args": ["-y", "next-devtools-mcp@latest"],
-      "command": "npx"
+      "args": ["exec", "next-devtools-mcp"],
+      "command": "pnpm"
     },
     "playwright": {
-      "args": ["-y", "@playwright/mcp@latest"],
-      "command": "npx"
+      "args": ["exec", "playwright-mcp"],
+      "command": "pnpm"
     },
     "storybook-mcp": {
       "type": "http",
