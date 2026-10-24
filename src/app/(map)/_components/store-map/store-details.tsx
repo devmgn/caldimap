@@ -2,6 +2,8 @@
 
 import type { Sale, Store } from "../../../../types/stores-data";
 import { parseISO } from "date-fns";
+import { ShareButton } from "./share-button";
+import { getDirectionsUrl } from "./utils/get-directions-url";
 import { useToday } from "../../_hooks/use-today";
 import { getSalePeriod } from "../../_lib/get-sale-period";
 
@@ -43,8 +45,8 @@ interface StoreDetailsProps {
 }
 
 /**
- * A store's name, address, sales with their period and details, and official
- * page link, shown in a popup.
+ * A store's name, address, sales with their period and details, and links to
+ * directions, sharing, and the official page, shown in a popup.
  *
  * @param props - The store
  * @returns The details
@@ -70,14 +72,25 @@ export function StoreDetails({ store }: StoreDetailsProps) {
           )}
         </div>
       ))}
-      <a
-        href={store.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-xs text-[#2563eb]!"
-      >
-        公式ページ →
-      </a>
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        <a
+          href={getDirectionsUrl(store)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex min-h-8 items-center rounded border border-[#2563eb] bg-[#2563eb] px-2 text-xs text-white! no-underline! focus-visible:outline-2 focus-visible:outline-blue-600"
+        >
+          経路
+        </a>
+        <ShareButton store={store} />
+        <a
+          href={store.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="ml-auto text-xs text-[#2563eb]!"
+        >
+          公式ページ →
+        </a>
+      </div>
     </>
   );
 }

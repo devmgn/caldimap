@@ -1,8 +1,9 @@
 "use client";
 
 import type { Store } from "../../../../types/stores-data";
-import { CircleMarker, Popup, useMap } from "react-leaflet";
-import { StoreDetails } from "./store-details";
+import { DomEvent } from "leaflet";
+import { CircleMarker, useMap } from "react-leaflet";
+import { useSelectedStore } from "../../_hooks/use-selected-store";
 
 interface StoreMarkerProps {
   store: Store;
@@ -10,14 +11,15 @@ interface StoreMarkerProps {
 }
 
 /**
- * Store marker colored by its sales. Clicking it pans to the store and opens a
- * popup with the details.
+ * Store marker colored by its sales. Clicking it pans to the store and selects
+ * it, which opens its popup through `?store=`.
  *
  * @param props - The store and its marker color
  * @returns The marker
  */
 export function StoreMarker({ store, color }: StoreMarkerProps) {
   const map = useMap();
+  const { selectStore } = useSelectedStore();
 
   return (
     <CircleMarker
@@ -30,17 +32,17 @@ export function StoreMarker({ store, color }: StoreMarkerProps) {
         fillOpacity: 1,
       }}
       eventHandlers={{
+        // Leaflet closes an open popup on the map's synthetic preclick, and the
+        // selected store's popup isn't bound to this marker to block it. Without
+        // this, clicking the open store's marker would close its popup for good
+        preclick: (event) => {
+          DomEvent.stopPropagation(event);
+        },
         click: () => {
           map.panTo([store.lat, store.lng]);
+          selectStore(store.id);
         },
       }}
-    >
-      {/* Popup auto-pan would cancel the `panTo` above; centering the store keeps the popup in view anyway */}
-      <Popup autoPan={false}>
-        <div className="max-w-[250px] p-1">
-          <StoreDetails store={store} />
-        </div>
-      </Popup>
-    </CircleMarker>
+    />
   );
 }
