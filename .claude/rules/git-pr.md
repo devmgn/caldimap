@@ -14,4 +14,4 @@ Follow Conventional Commits: `feat:`, `fix:`, `refactor:`, `chore:`, `chore(deps
 
 ## PR Workflow
 
-Branch from `main` → push (CI runs automatically) → open PR → all checks must pass before merge.
+Branch from `main` → push → open PR (CI runs on the PR; draft PRs are skipped until marked ready) → all checks must pass before merge.

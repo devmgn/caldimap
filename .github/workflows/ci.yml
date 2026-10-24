@@ -1,9 +1,10 @@
 name: CI
 
+# Run on pull requests instead of `push` so draft PRs can be skipped: a push event does not know
+# whether its branch has a draft PR. `ready_for_review` runs the checks once the draft is undrafted.
 on:
-  push:
-    branches-ignore:
-      - main
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
 
 concurrency:
@@ -20,6 +21,7 @@ permissions:
 # Once actionlint supports it, drop the ignore and migrate to `$/.github/actions/setup`.
 jobs:
   Build:
+    if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-26.04
     timeout-minutes: 10
     # The top page prerenders the stores data, so the build needs a database.
@@ -52,6 +54,7 @@ jobs:
         run: pnpm build
 
   Lint:
+    if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-26.04
     timeout-minutes: 10
     steps:
@@ -67,6 +70,7 @@ jobs:
         run: pnpm check
 
   Test:
+    if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-26.04
     timeout-minutes: 10
     steps:
