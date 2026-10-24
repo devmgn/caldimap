@@ -1,16 +1,22 @@
 "use client";
 
 import type { Store } from "../../../../types/stores-data";
-import { CircleMarker, Popup } from "react-leaflet";
+import { CircleMarker, Popup, useMap } from "react-leaflet";
 import { getMarkerColor } from "./utils/get-marker-color";
 
-function StoreMarker({
-  store,
-  onSelect,
-}: {
+interface StoreMarkerProps {
   store: Store;
-  onSelect: (store: Store) => void;
-}) {
+}
+
+/**
+ * Store marker colored by its sales. Clicking it pans to the store and opens a
+ * popup with the details.
+ *
+ * @param props - The store
+ * @returns The marker
+ */
+export function StoreMarker({ store }: StoreMarkerProps) {
+  const map = useMap();
   const color = getMarkerColor(store.sales);
 
   return (
@@ -25,11 +31,12 @@ function StoreMarker({
       }}
       eventHandlers={{
         click: () => {
-          onSelect(store);
+          map.panTo([store.lat, store.lng]);
         },
       }}
     >
-      <Popup>
+      {/* Popup auto-pan would cancel the `panTo` above; centering the store keeps the popup in view anyway */}
+      <Popup autoPan={false}>
         <div className="max-w-[250px] p-1">
           <h3 className="mb-1 text-sm font-semibold">{store.name}</h3>
           {/* Leaflet's popup `p` margin and `a` color rules outrank utilities, hence `!` */}
@@ -57,5 +64,3 @@ function StoreMarker({
     </CircleMarker>
   );
 }
-
-export { StoreMarker };

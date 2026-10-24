@@ -4,7 +4,17 @@ import type { LatLng } from "../../../../types/stores-data";
 import { useMap } from "react-leaflet";
 import { DEFAULT_ZOOM } from "./utils/map-config";
 
-function MyLocationButton({ position }: { position: LatLng }) {
+interface MyLocationButtonProps {
+  position: LatLng;
+}
+
+/**
+ * Button that re-centers the map on the user's position.
+ *
+ * @param props - The user's position
+ * @returns The button
+ */
+export function MyLocationButton({ position }: MyLocationButtonProps) {
   const map = useMap();
 
   function handleClick() {
@@ -35,5 +45,3 @@ function MyLocationButton({ position }: { position: LatLng }) {
     </button>
   );
 }
-
-export { MyLocationButton };

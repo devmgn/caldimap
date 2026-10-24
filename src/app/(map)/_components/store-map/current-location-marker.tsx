@@ -3,7 +3,19 @@
 import type { LatLng } from "../../../../types/stores-data";
 import { CircleMarker } from "react-leaflet";
 
-function CurrentLocationMarker({ position }: { position: LatLng }) {
+interface CurrentLocationMarkerProps {
+  position: LatLng;
+}
+
+/**
+ * Blue dot marking the user's position.
+ *
+ * @param props - The user's position
+ * @returns The marker
+ */
+export function CurrentLocationMarker({
+  position,
+}: CurrentLocationMarkerProps) {
   return (
     <CircleMarker
       center={[position.lat, position.lng]}
@@ -17,5 +29,3 @@ function CurrentLocationMarker({ position }: { position: LatLng }) {
     />
   );
 }
-
-export { CurrentLocationMarker };

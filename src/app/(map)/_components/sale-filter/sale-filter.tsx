@@ -8,7 +8,14 @@ interface SaleFilterProps {
   filteredCount: number;
 }
 
-function SaleFilter({
+/**
+ * Checkbox list that narrows the map to stores holding the selected sales.
+ *
+ * @param props - The sale types, the current selection, the toggle handler, and
+ *   the store counts
+ * @returns The filter panel, or `null` when there are no sales
+ */
+export function SaleFilter({
   saleTypes,
   selectedSales,
   onToggle,
@@ -45,5 +52,3 @@ function SaleFilter({
     </div>
   );
 }
-
-export { SaleFilter };
