@@ -1,6 +1,13 @@
 import type { Store } from "../../../../types/stores-data";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { expect, fireEvent, fn, userEvent, within } from "storybook/test";
+import {
+  expect,
+  fireEvent,
+  fn,
+  userEvent,
+  waitFor,
+  within,
+} from "storybook/test";
 import { StoreSearch } from "./store-search";
 
 function store(id: string, name: string, address: string): Store {
@@ -25,6 +32,23 @@ const STORES = [
   store("3", "大宮店", "埼玉県さいたま市大宮区錦町630"),
 ];
 
+// The results render in a portal outside the story's canvas
+const page = within(document.body);
+
+function getInput(canvasElement: HTMLElement) {
+  return within(canvasElement).getByRole("combobox", { name: SEARCH_LABEL });
+}
+
+function optionNames() {
+  return page
+    .queryAllByRole("option")
+    .map((option) => option.firstChild?.textContent);
+}
+
+function highlightedOption() {
+  return document.querySelector("[role='option'][data-highlighted]");
+}
+
 const meta = {
   component: StoreSearch,
   args: {
@@ -45,87 +69,67 @@ export default meta;
 type Story = StoryObj<typeof StoreSearch>;
 
 export const Default: Story = {
-  play: async ({ canvas }) => {
-    await expect(
-      canvas.getByRole("searchbox", { name: SEARCH_LABEL })
-    ).toBeVisible();
-    await expect(
-      canvas.queryByRole("list", { name: RESULTS_LABEL })
-    ).not.toBeInTheDocument();
+  play: async ({ canvasElement }) => {
+    await expect(getInput(canvasElement)).toBeVisible();
+    await expect(page.queryByRole("listbox")).not.toBeInTheDocument();
   },
 };
 
 export const TypingListsMatches: Story = {
-  play: async ({ canvas }) => {
+  play: async ({ canvasElement }) => {
     // Hiragana matches the katakana names
-    await userEvent.type(
-      canvas.getByRole("searchbox", { name: SEARCH_LABEL }),
-      "あとれ"
-    );
+    await userEvent.type(getInput(canvasElement), "あとれ");
 
-    const results = within(canvas.getByRole("list", { name: RESULTS_LABEL }));
     await expect(
-      results.getAllByRole("button").map((b) => b.firstChild?.textContent)
-    ).toStrictEqual(["アトレ吉祥寺店", "アトレヴィ三鷹店"]);
+      await page.findByRole("listbox", { name: RESULTS_LABEL })
+    ).toBeVisible();
+    await expect(optionNames()).toStrictEqual([
+      "アトレ吉祥寺店",
+      "アトレヴィ三鷹店",
+    ]);
+    // Base UI briefly appends an invisible U+2060 to the first announcement
+    // so VoiceOver notices it, hence the pattern instead of exact text
     await expect(
-      canvas.getByText("2件の店舗が見つかりました")
+      await page.findByText(/2件の店舗が見つかりました/u)
     ).toBeInTheDocument();
   },
 };
 
 export const KeyboardSelection: Story = {
-  play: async ({ args, canvas }) => {
-    const input = canvas.getByRole("searchbox", { name: SEARCH_LABEL });
+  play: async ({ args, canvasElement }) => {
+    const input = getInput(canvasElement);
 
     await userEvent.type(input, "アトレ");
-    await userEvent.keyboard("{ArrowDown}{ArrowDown}");
+    await page.findByRole("listbox", { name: RESULTS_LABEL });
 
-    await expect(
-      canvas.getByRole("button", { name: /アトレヴィ三鷹店/u })
-    ).toHaveFocus();
-
-    // Wraps from the last result back to the first
+    // The first match is highlighted as you type; ↓ moves to the next
+    await waitFor(async () => {
+      await expect(highlightedOption()).toHaveTextContent("アトレ吉祥寺店");
+    });
     await userEvent.keyboard("{ArrowDown}");
-    await expect(
-      canvas.getByRole("button", { name: /アトレ吉祥寺店/u })
-    ).toHaveFocus();
+    await expect(highlightedOption()).toHaveTextContent("アトレヴィ三鷹店");
+    await expect(input).toHaveFocus();
 
-    // ...and from the first to the last
-    await userEvent.keyboard("{ArrowUp}{Enter}");
+    await userEvent.keyboard("{Enter}");
 
     await expect(args.onSelect).toHaveBeenCalledWith(STORES[1]);
     await expect(input).toHaveValue("");
-    await expect(input).toHaveFocus();
   },
 };
 
 export const EnterTakesFirstResult: Story = {
-  play: async ({ args, canvas }) => {
-    await userEvent.type(
-      canvas.getByRole("searchbox", { name: SEARCH_LABEL }),
-      "アトレ{Enter}"
-    );
+  play: async ({ args, canvasElement }) => {
+    await userEvent.type(getInput(canvasElement), "アトレ");
+    await page.findByRole("listbox", { name: RESULTS_LABEL });
+    await userEvent.keyboard("{Enter}");
 
     await expect(args.onSelect).toHaveBeenCalledWith(STORES[0]);
   },
 };
 
-export const IgnoresKeysWhileComposing: Story = {
-  play: async ({ canvas }) => {
-    const input = canvas.getByRole("searchbox", { name: SEARCH_LABEL });
-
-    await userEvent.type(input, "アトレ");
-    // During IME composition the arrows pick conversion candidates
-    await fireEvent.keyDown(input, { key: "ArrowDown", isComposing: true });
-
-    await expect(input).toHaveFocus();
-    await expect(input).toHaveValue("アトレ");
-  },
-};
-
 export const SearchesOnlyConfirmedText: Story = {
-  play: async ({ canvas }) => {
-    const input = canvas.getByRole("searchbox", { name: SEARCH_LABEL });
+  play: async ({ canvasElement }) => {
+    const input = getInput(canvasElement);
 
     input.focus();
     await fireEvent.compositionStart(input);
@@ -136,81 +140,77 @@ export const SearchesOnlyConfirmedText: Story = {
     });
 
     await expect(input).toHaveValue("あと");
-    await expect(
-      canvas.queryByRole("list", { name: RESULTS_LABEL })
-    ).not.toBeInTheDocument();
+    await expect(page.queryAllByRole("option")).toHaveLength(0);
 
     await fireEvent.compositionEnd(input);
 
-    await expect(
-      within(canvas.getByRole("list", { name: RESULTS_LABEL })).getAllByRole(
-        "button"
-      )
-    ).toHaveLength(2);
+    await waitFor(async () => {
+      await expect(page.getAllByRole("option")).toHaveLength(2);
+    });
+  },
+};
+
+export const IgnoresArrowsWhileComposing: Story = {
+  play: async ({ canvasElement }) => {
+    const input = getInput(canvasElement);
+
+    await userEvent.type(input, "アトレ");
+    await waitFor(async () => {
+      await expect(highlightedOption()).toHaveTextContent("アトレ吉祥寺店");
+    });
+
+    // During IME composition the arrows pick conversion candidates
+    await fireEvent.keyDown(input, { key: "ArrowDown", isComposing: true });
+
+    await expect(highlightedOption()).toHaveTextContent("アトレ吉祥寺店");
   },
 };
 
 export const ClickSelection: Story = {
-  play: async ({ args, canvas }) => {
-    await userEvent.type(
-      canvas.getByRole("searchbox", { name: SEARCH_LABEL }),
-      "大宮"
-    );
-    await userEvent.click(canvas.getByRole("button", { name: /大宮店/u }));
+  play: async ({ args, canvasElement }) => {
+    await userEvent.type(getInput(canvasElement), "大宮");
+    await userEvent.click(await page.findByRole("option", { name: /大宮店/u }));
 
     await expect(args.onSelect).toHaveBeenCalledWith(STORES[2]);
   },
 };
 
-export const EscapeClears: Story = {
-  play: async ({ canvas }) => {
-    const input = canvas.getByRole("searchbox", { name: SEARCH_LABEL });
+export const EscapeCloses: Story = {
+  play: async ({ canvasElement }) => {
+    await userEvent.type(getInput(canvasElement), "アトレ");
+    await page.findByRole("listbox", { name: RESULTS_LABEL });
 
-    await userEvent.type(input, "アトレ");
-    await userEvent.keyboard("{ArrowDown}{Escape}");
+    await userEvent.keyboard("{Escape}");
 
-    await expect(input).toHaveValue("");
-    await expect(input).toHaveFocus();
-    await expect(
-      canvas.queryByRole("list", { name: RESULTS_LABEL })
-    ).not.toBeInTheDocument();
+    await waitFor(async () => {
+      await expect(page.queryByRole("listbox")).not.toBeInTheDocument();
+    });
   },
 };
 
 export const NoMatches: Story = {
-  play: async ({ args, canvas }) => {
-    await userEvent.type(
-      canvas.getByRole("searchbox", { name: SEARCH_LABEL }),
-      "札幌{Enter}"
-    );
+  play: async ({ args, canvasElement }) => {
+    await userEvent.type(getInput(canvasElement), "札幌");
 
     await expect(
-      canvas.queryByRole("list", { name: RESULTS_LABEL })
-    ).not.toBeInTheDocument();
-    // Shown visibly and announced through the live region
-    await expect(canvas.getAllByText("該当する店舗がありません")).toHaveLength(
-      2
-    );
+      await page.findByText("該当する店舗がありません")
+    ).toBeVisible();
+
+    // Enter with nothing to pick selects nothing
+    await userEvent.keyboard("{Enter}");
     await expect(args.onSelect).not.toHaveBeenCalled();
   },
 };
 
-export const BlurHidesResults: Story = {
-  play: async ({ canvas }) => {
-    await userEvent.type(
-      canvas.getByRole("searchbox", { name: SEARCH_LABEL }),
-      "アトレ"
-    );
-    // Focus moving into a result keeps the list open
-    await userEvent.keyboard("{ArrowDown}");
-    await expect(
-      canvas.getByRole("list", { name: RESULTS_LABEL })
-    ).toBeVisible();
+export const OutsideClickCloses: Story = {
+  play: async ({ canvasElement }) => {
+    await userEvent.type(getInput(canvasElement), "アトレ");
+    await page.findByRole("listbox", { name: RESULTS_LABEL });
 
     await userEvent.click(document.body);
 
-    await expect(
-      canvas.queryByRole("list", { name: RESULTS_LABEL })
-    ).not.toBeInTheDocument();
+    await waitFor(async () => {
+      await expect(page.queryByRole("listbox")).not.toBeInTheDocument();
+    });
   },
 };

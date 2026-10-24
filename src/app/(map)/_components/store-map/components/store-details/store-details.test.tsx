@@ -2,6 +2,7 @@ import type { Sale, Store } from "../../../../../../types/stores-data";
 import { render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { StoreDetails } from "./store-details";
+import { ToastProvider } from "../../../../_providers/toast-provider";
 
 function sale(startDate: string, endDate: string, detail = ""): Sale {
   return { type: "お客様感謝セール", status: "", startDate, endDate, detail };
@@ -35,7 +36,7 @@ describe(StoreDetails, () => {
     ["upcoming", sale("2026-10-30", "2026-11-03"), "10/30から"],
     ["finished", sale("2026-10-01", "2026-10-05"), "終了"],
   ])("labels a %s sale", (_, s, label) => {
-    render(<StoreDetails store={storeWith([s])} />);
+    render(<StoreDetails store={storeWith([s])} />, { wrapper: ToastProvider });
 
     expect(screen.getByText(label)).toBeInTheDocument();
   });
@@ -44,7 +45,8 @@ describe(StoreDetails, () => {
     render(
       <StoreDetails
         store={storeWith([sale("2026-10-22", "2026-10-26", "10%OFF")])}
-      />
+      />,
+      { wrapper: ToastProvider }
     );
 
     expect(screen.getByText("10%OFF")).toBeInTheDocument();
@@ -52,7 +54,8 @@ describe(StoreDetails, () => {
 
   it("omits the details paragraph when the details are empty", () => {
     const { container } = render(
-      <StoreDetails store={storeWith([sale("2026-10-22", "2026-10-26")])} />
+      <StoreDetails store={storeWith([sale("2026-10-22", "2026-10-26")])} />,
+      { wrapper: ToastProvider }
     );
 
     // The address is the only paragraph left

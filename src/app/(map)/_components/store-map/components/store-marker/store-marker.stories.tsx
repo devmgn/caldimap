@@ -6,6 +6,7 @@ import { MapContainer } from "react-leaflet";
 import { expect, fireEvent, fn, waitFor } from "storybook/test";
 import { StoreMarker } from "./store-marker";
 import { useSelectedStore } from "../../../../_hooks/use-selected-store";
+import { ToastProvider } from "../../../../_providers/toast-provider";
 import { SelectedStorePopup } from "../selected-store-popup";
 
 const STORE: Store = {
@@ -59,7 +60,10 @@ const meta = {
   decorators: [
     (Story) => (
       <NuqsAdapter>
-        <Story />
+        {/* The popup's share button reports through toasts */}
+        <ToastProvider>
+          <Story />
+        </ToastProvider>
       </NuqsAdapter>
     ),
   ],

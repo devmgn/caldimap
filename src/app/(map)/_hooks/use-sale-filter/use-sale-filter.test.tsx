@@ -73,7 +73,7 @@ describe(useSaleFilter, () => {
     expect(result.current.filteredStores.map((s) => s.id)).toStrictEqual(["2"]);
   });
 
-  it("adds and removes a sale type in the URL when toggled", async () => {
+  it("writes the selected sale types to the URL and clears them", async () => {
     const urlSales: (string | null)[] = [];
 
     const { result } = renderHook(() => useSaleFilter(STORES), {
@@ -86,7 +86,7 @@ describe(useSaleFilter, () => {
     });
 
     act(() => {
-      result.current.toggleSale("お客様感謝セール");
+      result.current.changeSales(["お客様感謝セール"]);
     });
 
     await waitFor(() => {
@@ -98,7 +98,7 @@ describe(useSaleFilter, () => {
     ]);
 
     act(() => {
-      result.current.toggleSale("お客様感謝セール");
+      result.current.changeSales([]);
     });
 
     await waitFor(() => {

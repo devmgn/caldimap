@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import { useState } from "react";
 import { useSaleFilter } from "../../_hooks/use-sale-filter";
 import { useSelectedStore } from "../../_hooks/use-selected-store";
+import { ToastProvider } from "../../_providers/toast-provider";
 import { SaleFilter } from "../sale-filter";
 import { DEFAULT_ZOOM } from "../store-map/utils/map-config";
 import { StoreSearch } from "../store-search";
@@ -35,7 +36,7 @@ export function MapPage({ data }: MapPageProps) {
   const {
     saleTypes,
     selectedSales,
-    toggleSale,
+    changeSales,
     period,
     changePeriod,
     filteredStores,
@@ -56,25 +57,27 @@ export function MapPage({ data }: MapPageProps) {
   }
 
   return (
-    <div className="relative h-dvh w-full">
-      <StoreMap
-        stores={filteredStores}
-        selectedStore={selectedStore}
-        onMapReady={setMap}
-      />
-      <div className="absolute top-4 left-4 z-1000 flex w-56 flex-col gap-2">
-        <StoreSearch stores={data.stores} onSelect={handleSearchSelect} />
-        <SaleFilter
-          saleTypes={saleTypes}
-          selectedSales={selectedSales}
-          onToggle={toggleSale}
-          period={period}
-          onPeriodChange={changePeriod}
-          totalCount={data.stores.length}
-          filteredCount={filteredStores.length}
-          updatedAt={data.updatedAt}
+    <ToastProvider>
+      <div className="relative h-dvh w-full">
+        <StoreMap
+          stores={filteredStores}
+          selectedStore={selectedStore}
+          onMapReady={setMap}
         />
+        <div className="absolute top-4 left-4 z-1000 flex w-56 flex-col gap-2">
+          <StoreSearch stores={data.stores} onSelect={handleSearchSelect} />
+          <SaleFilter
+            saleTypes={saleTypes}
+            selectedSales={selectedSales}
+            onSalesChange={changeSales}
+            period={period}
+            onPeriodChange={changePeriod}
+            totalCount={data.stores.length}
+            filteredCount={filteredStores.length}
+            updatedAt={data.updatedAt}
+          />
+        </div>
       </div>
-    </div>
+    </ToastProvider>
   );
 }

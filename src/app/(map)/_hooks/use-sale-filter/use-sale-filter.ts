@@ -95,12 +95,8 @@ export function useSaleFilter(stores: Store[]) {
     today,
   });
 
-  function toggleSale(saleType: string) {
-    void setSelectedSales((prev) =>
-      prev.includes(saleType)
-        ? prev.filter((s) => s !== saleType)
-        : [...prev, saleType]
-    );
+  function changeSales(next: string[]) {
+    void setSelectedSales(next);
   }
 
   function changePeriod(next: PeriodFilter) {
@@ -110,7 +106,7 @@ export function useSaleFilter(stores: Store[]) {
   return {
     saleTypes,
     selectedSales,
-    toggleSale,
+    changeSales,
     period,
     changePeriod,
     filteredStores,

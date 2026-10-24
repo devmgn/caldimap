@@ -1,5 +1,7 @@
 "use client";
 
+import { Button } from "@base-ui/react/button";
+
 interface ErrorProps {
   error: unknown;
   retry: () => void;
@@ -19,9 +21,7 @@ export default function ErrorPage(props: ErrorProps) {
   return (
     <>
       <h2>Something went wrong!</h2>
-      <button onClick={retry} type="button">
-        Try again
-      </button>
+      <Button onClick={retry}>Try again</Button>
     </>
   );
 }

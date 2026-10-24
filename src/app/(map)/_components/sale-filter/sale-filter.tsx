@@ -1,21 +1,28 @@
 "use client";
 
 import type { PeriodFilter } from "../../_hooks/use-sale-filter";
+import { Checkbox } from "@base-ui/react/checkbox";
+import { CheckboxGroup } from "@base-ui/react/checkbox-group";
+import { Radio } from "@base-ui/react/radio";
+import { RadioGroup } from "@base-ui/react/radio-group";
 import { useId } from "react";
 import { formatUpdatedAt } from "./utils/format-updated-at";
 import { isStale } from "./utils/is-stale";
 import { useToday } from "../../_hooks/use-today";
 
+// Radio values must be non-null, so "every store" gets a value of its own
+const ALL_PERIODS = "all";
+
 const PERIOD_OPTIONS = [
-  { value: null, label: "すべて" },
-  { value: "active", label: "開催中" },
-  { value: "upcoming", label: "開催予定" },
-] as const satisfies { value: PeriodFilter; label: string }[];
+  { value: ALL_PERIODS, period: null, label: "すべて" },
+  { value: "active", period: "active", label: "開催中" },
+  { value: "upcoming", period: "upcoming", label: "開催予定" },
+] as const satisfies { value: string; period: PeriodFilter; label: string }[];
 
 interface SaleFilterProps {
   saleTypes: string[];
   selectedSales: string[];
-  onToggle: (saleType: string) => void;
+  onSalesChange: (saleTypes: string[]) => void;
   period: PeriodFilter;
   onPeriodChange: (period: PeriodFilter) => void;
   totalCount: number;
@@ -36,16 +43,15 @@ interface SaleFilterProps {
 export function SaleFilter({
   saleTypes,
   selectedSales,
-  onToggle,
+  onSalesChange,
   period,
   onPeriodChange,
   totalCount,
   filteredCount,
   updatedAt,
 }: SaleFilterProps) {
-  // Radios group by name, so keep it unique per panel
-  const periodName = useId();
-  const selected = new Set(selectedSales);
+  const periodLabelId = useId();
+  const typesLabelId = useId();
   // Unknown until hydration: the prerendered "today" is the build date
   const today = useToday();
 
@@ -54,53 +60,74 @@ export function SaleFilter({
 
   return (
     <div className="flex flex-col gap-3 rounded-lg border bg-white p-4 shadow-sm">
-      {saleTypes.length > 0 && (
+      {saleTypes.length > 0 ? (
         <>
           <h2 className="text-sm font-semibold">セール絞り込み</h2>
-          <fieldset>
-            <legend className="sr-only">期間</legend>
-            <div className="flex rounded-md bg-gray-100 p-0.5 text-xs">
-              {PERIOD_OPTIONS.map((option) => (
-                <label
-                  key={option.label}
-                  className="flex-1 cursor-pointer rounded px-1 py-1 text-center whitespace-nowrap text-gray-600 has-checked:bg-white has-checked:font-semibold has-checked:text-gray-900 has-checked:shadow-sm has-focus-visible:outline-2 has-focus-visible:outline-blue-600"
-                >
-                  <input
-                    type="radio"
-                    name={periodName}
-                    checked={period === option.value}
-                    onChange={() => {
-                      onPeriodChange(option.value);
-                    }}
-                    className="sr-only"
-                  />
-                  {option.label}
-                </label>
-              ))}
-            </div>
-          </fieldset>
-          <div className="flex flex-col gap-2">
+          <span id={periodLabelId} className="sr-only">
+            期間
+          </span>
+          {/* A segmented control: each radio carries its own label */}
+          <RadioGroup
+            aria-labelledby={periodLabelId}
+            value={period ?? ALL_PERIODS}
+            onValueChange={(value) => {
+              const option = PERIOD_OPTIONS.find((o) => o.value === value);
+              onPeriodChange(option?.period ?? null);
+            }}
+            className="flex rounded-md bg-gray-100 p-0.5 text-xs"
+          >
+            {PERIOD_OPTIONS.map((option) => (
+              <Radio.Root
+                key={option.value}
+                value={option.value}
+                className="flex-1 cursor-pointer rounded px-1 py-1 text-center whitespace-nowrap text-gray-600 focus-visible:outline-2 focus-visible:outline-blue-600 data-checked:bg-white data-checked:font-semibold data-checked:text-gray-900 data-checked:shadow-sm"
+              >
+                {option.label}
+              </Radio.Root>
+            ))}
+          </RadioGroup>
+          <span id={typesLabelId} className="sr-only">
+            セールの種類
+          </span>
+          <CheckboxGroup
+            aria-labelledby={typesLabelId}
+            value={selectedSales}
+            onValueChange={onSalesChange}
+            className="flex flex-col gap-2"
+          >
             {saleTypes.map((type) => (
               <label key={type} className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={selected.has(type)}
-                  onChange={() => {
-                    onToggle(type);
-                  }}
-                  className="rounded"
-                />
+                <Checkbox.Root
+                  value={type}
+                  // The ::after widens the hit area beyond the 16px box
+                  className="relative flex size-4 shrink-0 items-center justify-center rounded-[4px] border border-gray-400 bg-white text-white after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 data-checked:border-gray-900 data-checked:bg-gray-900"
+                >
+                  <Checkbox.Indicator className="flex data-unchecked:hidden">
+                    <svg
+                      aria-hidden="true"
+                      viewBox="0 0 16 16"
+                      className="size-3"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M3.5 8.5l3 3 6-7" />
+                    </svg>
+                  </Checkbox.Indicator>
+                </Checkbox.Root>
                 {type}
               </label>
             ))}
-          </div>
+          </CheckboxGroup>
         </>
-      )}
+      ) : null}
       <div className="flex flex-col gap-1 text-xs text-gray-500">
         <p>
           {filteredCount} / {totalCount} 店舗表示中
         </p>
-        {updatedAt !== null && (
+        {updatedAt === null ? null : (
           // Said in words too, not only by color
           <p className={stale ? "font-semibold text-amber-700" : undefined}>
             <time dateTime={updatedAt}>{formatUpdatedAt(updatedAt)}</time> 更新
