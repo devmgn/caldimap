@@ -7,6 +7,7 @@ import { useMap, useMapEvents } from "react-leaflet";
 import { ClusterMarker } from "./cluster-marker";
 import { StoreMarker } from "./store-marker";
 import { createStoreIndex } from "./utils/create-store-index";
+import { useToday } from "../../_hooks/use-today";
 
 // Render a margin around the viewport so markers don't pop in while panning
 const BOUNDS_PADDING = 0.2;
@@ -46,7 +47,10 @@ export function StoreClusters({ stores }: StoreClustersProps) {
     },
   });
 
-  const index = createStoreIndex(stores);
+  const today = useToday();
+  // Rebuilt when the day changes, so marker colors roll over with the popups
+  // and the filter. The map renders only in the browser, so `today` is set
+  const index = createStoreIndex(stores, today ?? undefined);
   const features = index.getClusters(viewport.bbox, viewport.zoom);
 
   return (

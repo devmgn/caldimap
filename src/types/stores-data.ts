@@ -25,8 +25,12 @@ export interface Store {
   sales: Sale[];
 }
 
-/** Every store with the time the data was built. */
+/** Every store with the time it was scraped. */
 export interface StoresData {
-  updatedAt: string;
+  /**
+   * When the data was last scraped (ISO 8601), or `null` if no scrape is
+   * recorded.
+   */
+  updatedAt: string | null;
   stores: Store[];
 }

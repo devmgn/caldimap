@@ -1,11 +1,5 @@
 import type { Sale } from "../../../../../../types/stores-data";
-import {
-  endOfDay,
-  isAfter,
-  isWithinInterval,
-  parseISO,
-  startOfDay,
-} from "date-fns";
+import { getSalePeriod } from "../../../../_lib/get-sale-period";
 
 type SaleCategory = "open" | "kansha";
 
@@ -49,21 +43,19 @@ function getSaleCategory(type: string): SaleCategory {
  * @param now - The current time (injectable for tests)
  * @returns A hex color
  */
-export function getMarkerColor(sales: Sale[], now = new Date()): MarkerColor {
-  const today = startOfDay(now);
-
-  const active = sales.find((sale) =>
-    isWithinInterval(today, {
-      start: startOfDay(parseISO(sale.startDate)),
-      end: endOfDay(parseISO(sale.endDate)),
-    })
-  );
+export function getMarkerColor(
+  sales: Sale[],
+  now: Date | number = new Date()
+): MarkerColor {
+  const active = sales.find((sale) => getSalePeriod(sale, now) === "active");
 
   if (active) {
     return MARKER_COLORS[`${getSaleCategory(active.type)}-active`];
   }
 
-  const upcoming = sales.find((sale) => isAfter(parseISO(sale.startDate), now));
+  const upcoming = sales.find(
+    (sale) => getSalePeriod(sale, now) === "upcoming"
+  );
 
   if (upcoming) {
     return MARKER_COLORS[`${getSaleCategory(upcoming.type)}-upcoming`];

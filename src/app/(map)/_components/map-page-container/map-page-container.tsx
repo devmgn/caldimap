@@ -2,7 +2,7 @@ import type { StoresData } from "../../../../types/stores-data";
 import { getStoresWithSales } from "../../../../lib/db/queries/get-stores-with-sales";
 import { MapPage } from "../map-page";
 
-const EMPTY_DATA: StoresData = { updatedAt: "", stores: [] };
+const EMPTY_DATA: StoresData = { updatedAt: null, stores: [] };
 
 /**
  * Renders the map with the cached stores data, which is prerendered into the

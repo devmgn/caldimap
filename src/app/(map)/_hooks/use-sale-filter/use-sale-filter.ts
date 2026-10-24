@@ -1,8 +1,27 @@
 "use client";
 
-import type { Store } from "../../../../types/stores-data";
-import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
+import type { Sale, Store } from "../../../../types/stores-data";
+import type { SalePeriod } from "../../_lib/get-sale-period";
+import {
+  parseAsArrayOf,
+  parseAsString,
+  parseAsStringLiteral,
+  useQueryState,
+} from "nuqs";
 import { useDeferredValue } from "react";
+import { getSalePeriod } from "../../_lib/get-sale-period";
+import { useToday } from "../use-today";
+
+/** Periods the filter can narrow to; `null` shows every store. */
+export type PeriodFilter = Exclude<SalePeriod, "ended"> | null;
+
+const PERIODS = ["active", "upcoming"] as const satisfies PeriodFilter[];
+
+interface Criteria {
+  selectedSales: string[];
+  period: PeriodFilter;
+  today: number | null;
+}
 
 function getSaleTypes(stores: Store[]) {
   const types = new Set<string>();
@@ -18,26 +37,40 @@ function getSaleTypes(stores: Store[]) {
   return [...types].toSorted();
 }
 
-function filterBySales(stores: Store[], selectedSales: string[]) {
-  if (selectedSales.length === 0) {
+function filterStores(
+  stores: Store[],
+  { selectedSales, period, today }: Criteria
+) {
+  // Before hydration there is no "today" to compare with, so the period waits
+  const matchesPeriod =
+    period === null || today === null
+      ? null
+      : (sale: Sale) => getSalePeriod(sale, today) === period;
+
+  if (selectedSales.length === 0 && matchesPeriod === null) {
     return stores;
   }
 
   const selected = new Set(selectedSales);
 
+  // A single sale has to match both the type and the period
   return stores.filter((store) =>
-    store.sales.some((sale) => selected.has(sale.type))
+    store.sales.some(
+      (sale) =>
+        (selected.size === 0 || selected.has(sale.type)) &&
+        (matchesPeriod?.(sale) ?? true)
+    )
   );
 }
 
 /**
- * Sale filter backed by the `sales` query parameter. The checkboxes follow the
- * selection immediately, while the filtered stores follow a deferred copy so
- * re-rendering the markers doesn't block the input.
+ * Sale filter backed by the `sales` and `period` query parameters. The inputs
+ * follow the selection immediately, while the filtered stores follow a
+ * deferred copy so re-rendering the markers doesn't block the input.
  *
  * @param stores - All stores
- * @returns The sale types, the selection, a toggle function, and the stores
- *   holding a selected sale
+ * @returns The sale types, the selected types and period with their setters,
+ *   and the stores holding a sale that matches both
  */
 export function useSaleFilter(stores: Store[]) {
   const [selectedSales, setSelectedSales] = useQueryState(
@@ -45,9 +78,22 @@ export function useSaleFilter(stores: Store[]) {
     parseAsArrayOf(parseAsString, ",").withDefault([])
   );
 
+  const [period, setPeriod] = useQueryState(
+    "period",
+    parseAsStringLiteral(PERIODS)
+  );
+
+  const today = useToday();
+
   const saleTypes = getSaleTypes(stores);
   const deferredSales = useDeferredValue(selectedSales);
-  const filteredStores = filterBySales(stores, deferredSales);
+  const deferredPeriod = useDeferredValue(period);
+
+  const filteredStores = filterStores(stores, {
+    selectedSales: deferredSales,
+    period: deferredPeriod,
+    today,
+  });
 
   function toggleSale(saleType: string) {
     void setSelectedSales((prev) =>
@@ -57,5 +103,16 @@ export function useSaleFilter(stores: Store[]) {
     );
   }
 
-  return { saleTypes, selectedSales, toggleSale, filteredStores };
+  function changePeriod(next: PeriodFilter) {
+    void setPeriod(next);
+  }
+
+  return {
+    saleTypes,
+    selectedSales,
+    toggleSale,
+    period,
+    changePeriod,
+    filteredStores,
+  };
 }
