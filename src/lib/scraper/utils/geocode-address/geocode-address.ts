@@ -11,11 +11,34 @@ const gsiGeocodeResponseSchema = z.array(
   })
 );
 
+const TIMEOUT_MS = 10_000;
+
+// Generous bounds around Japan, including remote islands; a match outside is a
+// wrong hit, not the store
+const JAPAN_BOUNDS = { minLat: 20, maxLat: 46, minLng: 122, maxLng: 154 };
+
+function isInJapan({ lat, lng }: LatLng): boolean {
+  return (
+    lat >= JAPAN_BOUNDS.minLat &&
+    lat <= JAPAN_BOUNDS.maxLat &&
+    lng >= JAPAN_BOUNDS.minLng &&
+    lng <= JAPAN_BOUNDS.maxLng
+  );
+}
+
 async function fetchGsi(address: string): Promise<LatLng | null> {
   const url = `https://msearch.gsi.go.jp/address-search/AddressSearch?q=${encodeURIComponent(address)}`;
-  const res = await fetch(url);
+  let res: Response;
 
   // A failed lookup only skips this store; the caller retries or gives up on it
+  try {
+    res = await fetch(url, { signal: AbortSignal.timeout(TIMEOUT_MS) });
+  } catch (error) {
+    console.warn(`GSI request failed: ${String(error)} for ${address}`);
+
+    return null;
+  }
+
   if (!res.ok) {
     console.warn(`GSI request failed: ${res.status} for ${address}`);
 
@@ -29,8 +52,15 @@ async function fetchGsi(address: string): Promise<LatLng | null> {
   }
 
   const [lng, lat] = parsed.data[0].geometry.coordinates;
+  const coords = { lat, lng };
 
-  return { lat, lng };
+  if (!isInJapan(coords)) {
+    console.warn(`GSI returned coordinates outside Japan for ${address}`);
+
+    return null;
+  }
+
+  return coords;
 }
 
 /**

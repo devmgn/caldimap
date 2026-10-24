@@ -1,4 +1,4 @@
-import type { LatLng } from "../src/types/stores-data";
+import type { CachedCoords } from "../src/types/stores-data";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { parseArgs } from "node:util";
@@ -21,7 +21,7 @@ function hasDbConfig(): boolean {
   return url !== undefined && url !== "";
 }
 
-async function loadCoordsCache(): Promise<Map<string, LatLng>> {
+async function loadCoordsCache(): Promise<Map<string, CachedCoords>> {
   if (hasDbConfig()) {
     try {
       const { getStoreCoordsCache } =
@@ -41,10 +41,10 @@ async function loadCoordsCache(): Promise<Map<string, LatLng>> {
       JSON.parse(readFileSync(OUTPUT_PATH, "utf-8"))
     );
 
-    const coords = new Map<string, LatLng>();
+    const coords = new Map<string, CachedCoords>();
 
     for (const s of existing.stores) {
-      coords.set(s.id, { lat: s.lat, lng: s.lng });
+      coords.set(s.id, { address: s.address, lat: s.lat, lng: s.lng });
     }
 
     console.warn(`Loaded ${coords.size} cached coordinates from local JSON`);
@@ -61,7 +61,7 @@ async function main() {
   const skipCache = values["no-cache"];
 
   const cachedCoords = skipCache
-    ? new Map<string, LatLng>()
+    ? new Map<string, CachedCoords>()
     : await loadCoordsCache();
 
   if (skipCache) {

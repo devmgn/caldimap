@@ -14,6 +14,18 @@ describe(fetchKaldiPage, () => {
     expect($("p").text()).toBe("ok");
   });
 
+  it("passes a timeout signal to fetch", async () => {
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(
+        new Response('<div class="cz_Resultclass articleList"></div>')
+      );
+
+    await fetchKaldiPage(URL);
+
+    expect(fetchSpy.mock.calls[0]?.[1]?.signal).toBeInstanceOf(AbortSignal);
+  });
+
   it("throws on a non-2xx response", async () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response("error", { status: 503 })
