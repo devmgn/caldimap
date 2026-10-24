@@ -22,6 +22,20 @@ jobs:
   Build:
     runs-on: ubuntu-26.04
     timeout-minutes: 10
+    # The top page prerenders the stores data, so the build needs a database.
+    # An empty, migrated Postgres is enough to check that it builds.
+    services:
+      postgres:
+        image: postgres:17@sha256:b8faeff7712663c2773a190181e1246e37e364b887611c04658c28b44e2408fe
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
+      DATABASE_URL_POOLED: postgres://postgres:postgres@localhost:5432/postgres
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -30,6 +44,9 @@ jobs:
 
       - name: Setup Project
         uses: ./.github/actions/setup # zizmor: ignore[self-repository]
+
+      - name: Migrate database
+        run: pnpm db:migrate
 
       - name: Build
         run: pnpm build

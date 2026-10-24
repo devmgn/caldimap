@@ -18,9 +18,11 @@ Next.js convention files are the only files that sit flat in a route directory (
 
 ### Under Cache Components
 
-`cacheComponents: true` is enabled, so route segment configs such as `dynamic = "force-dynamic"` are not allowed, and uncached data is read during prerendering unless the component opts into request-time rendering.
+`cacheComponents: true` is enabled, so route segment configs such as `dynamic = "force-dynamic"` are not allowed, and data read during prerendering ends up in the static shell.
 
-DB queries are not detected as dynamic, so move them into a dedicated component that calls `await connection()` (`next/server`) first, and wrap it in `<Suspense>` in the calling `page.tsx`. Reference: `src/app/(map)/_components/map-page-container/`
+- The stores query (`getStoresWithSales`) is `"use cache"` with `cacheTag(STORES_CACHE_TAG)` + `cacheLife("days")`, so `/` is fully prerendered and the build needs a database (CI runs a Postgres service). `/api/scrape` calls `revalidateTag(STORES_CACHE_TAG, "max")` after saving.
+- Do not catch DB errors around cached reads: a caught error during the build would ship the fallback as static HTML. Let the build fail instead.
+- For data that must be fresh per request and cannot be cached, call `await connection()` (`next/server`) in a dedicated component wrapped in `<Suspense>`.
 
 ## Files That Bypass the Root Layout
 

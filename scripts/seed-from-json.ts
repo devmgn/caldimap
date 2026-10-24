@@ -25,6 +25,10 @@ async function main() {
   await upsertStoresAndSales(data);
 
   console.warn("Seed completed successfully");
+
+  // The open connection would otherwise keep the process alive
+  const { closeDb } = await import("../src/lib/db/get-db");
+  await closeDb();
 }
 
 await main();
