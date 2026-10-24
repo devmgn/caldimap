@@ -19,7 +19,13 @@ interface MapPageProps {
   data: StoresData;
 }
 
-function MapPage({ data }: MapPageProps) {
+/**
+ * Store map with the sale filter overlaid. The filter state lives in the URL.
+ *
+ * @param props - The stores data
+ * @returns The map page
+ */
+export function MapPage({ data }: MapPageProps) {
   const { saleTypes, selectedSales, toggleSale, filteredStores } =
     useSaleFilter(data.stores);
 
@@ -38,5 +44,3 @@ function MapPage({ data }: MapPageProps) {
     </div>
   );
 }
-
-export { MapPage };
