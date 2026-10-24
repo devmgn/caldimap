@@ -9,7 +9,7 @@
 | Framework | Next.js 16 (App Router, Turbopack)       |
 | UI        | React 19, Tailwind CSS v4, Leaflet       |
 | State     | nuqs (URL state)                         |
-| Data      | Drizzle ORM, Neon Postgres, Zod v4       |
+| Data      | Drizzle ORM, Supabase Postgres, Zod v4   |
 | Linting   | Ultracite (Oxlint + Oxfmt)               |
 | Testing   | Vitest, Storybook 10                     |
 | Language  | TypeScript (strict), Node.js 24, pnpm 12 |

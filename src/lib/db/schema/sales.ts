@@ -25,4 +25,4 @@ export const sales = pgTable(
       .defaultNow(),
   },
   (table) => [index("idx_sales_store_id").on(table.storeId)]
-);
+).enableRLS();

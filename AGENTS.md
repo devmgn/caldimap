@@ -6,7 +6,7 @@
 - **Tailwind CSS v4** via `@tailwindcss/turbopack` (Next.js) / `@tailwindcss/vite` (Storybook)
 - **Zod v4** for runtime validation (scraped responses, `data/stores.json`)
 - **nuqs** for URL state (`NuqsAdapter` in `src/app/layout.tsx`)
-- **Drizzle ORM** with Neon Postgres (`src/lib/db/`, migrations in `drizzle/`)
+- **Drizzle ORM** with Supabase Postgres (`src/lib/db/`, migrations in `drizzle/`). The app connects with the `DATABASE_URL` role, which bypasses RLS; every table has RLS enabled with no policies, so the Supabase Data API exposes nothing
 - **Leaflet** (react-leaflet) for map rendering
 - **Ultracite** (Oxlint + Oxfmt preset) for linting and formatting — entry points are `pnpm check` / `pnpm fix`
   - Presets (`oxlint.config.ts`): core, react, next, vitest, storybook, anti-slop + js-plugins (github, jsdoc-js, sonarjs, tsdoc, react-doctor)
