@@ -5,7 +5,7 @@ paths:
 
 # CI/CD Rules
 
-- `main` + feature branches. Workflows trigger on `push` with `branches-ignore: main`, except **actions-lint.yml** (every branch) and **skills-update.yml** (weekly `schedule` + `workflow_dispatch`)
+- `main` + feature branches. **ci.yml** triggers on `pull_request` (`opened` / `synchronize` / `reopened` / `ready_for_review`) and every job has `if: !github.event.pull_request.draft`, so draft PRs (e.g. Renovate PRs held as drafts and rebased) do not run CI; undrafting runs it. **actions-lint.yml** runs on `push` to every branch, **skills-update.yml** on a weekly `schedule` + `workflow_dispatch`
 - **ci.yml**: jobs `Build` (Postgres service + `pnpm db:migrate` + `pnpm build`, since `/` prerenders DB data) / `Lint` (`pnpm check`) / `Test` (`pnpm test:unit` + `pnpm test:oxlint-rules`). Job IDs double as required status check names — do not rename
 - Path-scoped: **actions-lint.yml** (`.github/**`, `mise.toml`, `mise.lock`)
 - Shared setup (`.github/actions/setup`): `pnpm/action-setup`, `setup-node` with `node-version-file: mise.toml`

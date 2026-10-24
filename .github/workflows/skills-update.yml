@@ -63,7 +63,7 @@ jobs:
       contents: read
     steps:
       # Pushes made with GITHUB_TOKEN do not trigger workflows, and dispatched ci.yml runs do not
-      # satisfy the PR's required status checks. Push as a GitHub App so ci.yml runs on `push`.
+      # satisfy the PR's required status checks. Push as a GitHub App so ci.yml runs on `pull_request`.
       - name: Generate token
         id: app-token
         uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
