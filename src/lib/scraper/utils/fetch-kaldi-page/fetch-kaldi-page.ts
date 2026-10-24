@@ -5,15 +5,18 @@ import { load } from "cheerio";
 // redirects (e.g. to the top page) do not
 const RESULT_PAGE_SELECTOR = ".cz_Resultclass.articleList";
 
+// The store list is one large page; give up well before the cron function limit
+const TIMEOUT_MS = 60_000;
+
 /**
  * Fetches a KALDI store map list page and loads it into Cheerio. Throws when
- * the response is not 2xx or is not a list result page.
+ * the response is not 2xx, is not a list result page, or times out.
  *
  * @param url - The list page URL
  * @returns The loaded page
  */
 export async function fetchKaldiPage(url: string): Promise<CheerioAPI> {
-  const res = await fetch(url);
+  const res = await fetch(url, { signal: AbortSignal.timeout(TIMEOUT_MS) });
 
   if (!res.ok) {
     throw new Error(`KALDI request failed: ${res.status} ${url}`);

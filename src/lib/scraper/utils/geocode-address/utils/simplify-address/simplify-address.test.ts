@@ -23,4 +23,12 @@ describe(simplifyAddress, () => {
   it("returns null for addresses without the street-name notation", () => {
     expect(simplifyAddress("東京都渋谷区神南1-2-3")).toBeNull();
   });
+
+  it("returns null for an over-long address without running the pattern", () => {
+    // Without the length cap this input backtracks for seconds
+    const start = performance.now();
+
+    expect(simplifyAddress("区通".repeat(500))).toBeNull();
+    expect(performance.now() - start).toBeLessThan(50);
+  });
 });

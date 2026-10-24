@@ -25,6 +25,12 @@ export interface Store {
   sales: Sale[];
 }
 
+/**
+ * Coordinates already resolved for a store, with the address they were
+ * resolved from.
+ */
+export type CachedCoords = Pick<Store, "address" | "lat" | "lng">;
+
 /** Every store with the time it was scraped. */
 export interface StoresData {
   /**

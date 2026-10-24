@@ -1,4 +1,4 @@
-import type { LatLng, StoresData } from "../../types/stores-data";
+import type { CachedCoords, LatLng, StoresData } from "../../types/stores-data";
 import type { RawSale } from "./utils/parse-sales-page";
 import type { RawStore } from "./utils/parse-stores-page";
 import { fetchKaldiPage } from "./utils/fetch-kaldi-page";
@@ -34,11 +34,22 @@ async function fetchSales(): Promise<RawSale[]> {
 
 async function resolveAllCoords(
   rawStores: RawStore[],
-  cachedCoords: Map<string, LatLng>
+  cachedCoords: Map<string, CachedCoords>
 ): Promise<Map<string, LatLng>> {
-  const result = new Map(cachedCoords);
+  const result = new Map<string, LatLng>();
+  const uncached: RawStore[] = [];
 
-  const uncached = rawStores.filter((raw) => !cachedCoords.has(raw.id));
+  // Reuse coordinates only while the address is unchanged; a store that moved
+  // under the same ID is geocoded again
+  for (const raw of rawStores) {
+    const cached = cachedCoords.get(raw.id);
+
+    if (cached?.address === raw.address) {
+      result.set(raw.id, { lat: cached.lat, lng: cached.lng });
+    } else {
+      uncached.push(raw);
+    }
+  }
 
   for (const raw of uncached) {
     // Geocode one at a time to stay within the GSI API rate limit
@@ -66,13 +77,15 @@ export interface ScrapeResult {
 
 /**
  * Scrapes stores and sales from the KALDI store map and merges them. Stores
- * without cached coordinates are geocoded with the GSI API.
+ * without cached coordinates for their current address are geocoded with the
+ * GSI API.
  *
- * @param cachedCoords - Coordinates already stored in the DB, keyed by store ID
+ * @param cachedCoords - Coordinates already stored in the DB with their address,
+ *   keyed by store ID
  * @returns The stores with their sales, and every listed store ID
  */
 export async function buildStoresData(
-  cachedCoords: Map<string, LatLng>
+  cachedCoords: Map<string, CachedCoords>
 ): Promise<ScrapeResult> {
   const [rawStores, sales] = await Promise.all([fetchStores(), fetchSales()]);
   const resolvedCoords = await resolveAllCoords(rawStores, cachedCoords);

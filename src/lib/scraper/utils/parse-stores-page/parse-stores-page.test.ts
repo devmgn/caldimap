@@ -52,7 +52,37 @@ describe(parseStoresPage, () => {
   it.each([
     ["without a store ID", { href: "/kaldi/detailMap?account=kaldi" }],
     ["without a name", { name: "" }],
+    [
+      "with bid only inside another parameter",
+      { href: "/kaldi/detailMap?xbid=043" },
+    ],
+    ["with a non-numeric bid", { href: "/kaldi/detailMap?bid=043x" }],
+    [
+      "linking to another host by absolute URL",
+      { href: "https://evil.example/?bid=043" },
+    ],
+    [
+      "linking to another host by protocol-relative URL",
+      { href: "//evil.example/?bid=043" },
+    ],
   ])("skips rows %s", (_, options) => {
     expect(parseStoresPage(page([storeRow(options)]))).toStrictEqual([]);
+  });
+
+  it("keeps a userinfo-looking href on the KALDI site", () => {
+    // Plain concatenation would have produced https://map.kaldi.co.jp@evil.example/
+    const [store] = parseStoresPage(
+      page([storeRow({ href: "@evil.example/?bid=043" })])
+    );
+
+    expect(new URL(store.url).host).toBe("map.kaldi.co.jp");
+  });
+
+  it("keeps only the first row of a repeated store ID", () => {
+    const stores = parseStoresPage(
+      page([storeRow({ name: "最初の店" }), storeRow({ name: "重複した店" })])
+    );
+
+    expect(stores.map((store) => store.name)).toStrictEqual(["最初の店"]);
   });
 });

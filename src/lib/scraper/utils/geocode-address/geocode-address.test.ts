@@ -45,6 +45,40 @@ describe(geocodeAddress, () => {
     await expect(geocodeAddress("東京都渋谷区神南1-2-3")).resolves.toBeNull();
   });
 
+  it("returns null when the request fails or times out", async () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    vi.spyOn(globalThis, "fetch").mockRejectedValue(
+      new DOMException("The operation timed out.", "TimeoutError")
+    );
+
+    await expect(geocodeAddress("東京都渋谷区神南1-2-3")).resolves.toBeNull();
+  });
+
+  it("passes a timeout signal to fetch", async () => {
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(gsiResponse([[139.56, 35.7]]));
+
+    await geocodeAddress("東京都三鷹市下連雀3-46-1");
+
+    expect(fetchSpy.mock.calls[0]?.[1]?.signal).toBeInstanceOf(AbortSignal);
+  });
+
+  it.each([
+    ["swapped lat / lng", [35.7, 139.56]],
+    ["(0, 0)", [0, 0]],
+  ] as const)(
+    "rejects coordinates outside Japan: %s",
+    async (_, coordinate) => {
+      vi.spyOn(console, "warn").mockImplementation(() => {});
+      vi.spyOn(globalThis, "fetch").mockResolvedValue(
+        gsiResponse([[...coordinate]])
+      );
+
+      await expect(geocodeAddress("東京都渋谷区神南1-2-3")).resolves.toBeNull();
+    }
+  );
+
   it("returns null when nothing matches", async () => {
     vi.spyOn(console, "warn").mockImplementation(() => {});
     vi.spyOn(globalThis, "fetch").mockResolvedValue(gsiResponse([]));
