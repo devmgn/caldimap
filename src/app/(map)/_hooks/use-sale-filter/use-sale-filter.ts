@@ -2,6 +2,7 @@
 
 import type { Store } from "../../../../types/stores-data";
 import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
+import { useDeferredValue } from "react";
 
 function getSaleTypes(stores: Store[]) {
   const types = new Set<string>();
@@ -30,7 +31,9 @@ function filterBySales(stores: Store[], selectedSales: string[]) {
 }
 
 /**
- * Sale filter backed by the `sales` query parameter.
+ * Sale filter backed by the `sales` query parameter. The checkboxes follow the
+ * selection immediately, while the filtered stores follow a deferred copy so
+ * re-rendering the markers doesn't block the input.
  *
  * @param stores - All stores
  * @returns The sale types, the selection, a toggle function, and the stores
@@ -43,7 +46,8 @@ export function useSaleFilter(stores: Store[]) {
   );
 
   const saleTypes = getSaleTypes(stores);
-  const filteredStores = filterBySales(stores, selectedSales);
+  const deferredSales = useDeferredValue(selectedSales);
+  const filteredStores = filterBySales(stores, deferredSales);
 
   function toggleSale(saleType: string) {
     void setSelectedSales((prev) =>

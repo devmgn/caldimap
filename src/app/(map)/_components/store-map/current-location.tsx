@@ -24,21 +24,31 @@ export function CurrentLocation() {
   const [position, setPosition] = useState<LatLng | null>(null);
 
   useEffect(() => {
-    if (!("geolocation" in navigator)) {
-      return;
+    // getCurrentPosition can't be cancelled, so ignore a result that arrives
+    // after unmount (the map may already be removed)
+    let ignore = false;
+
+    if ("geolocation" in navigator) {
+      // Denied, unavailable, or timed out: keep the Japan view
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          if (ignore) {
+            return;
+          }
+
+          const next = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+
+          setPosition(next);
+          map.setView(next, DEFAULT_ZOOM);
+        },
+        null,
+        GEOLOCATION_OPTIONS
+      );
     }
 
-    // Denied, unavailable, or timed out: keep the Japan view
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const next = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-
-        setPosition(next);
-        map.setView(next, DEFAULT_ZOOM);
-      },
-      null,
-      GEOLOCATION_OPTIONS
-    );
+    return () => {
+      ignore = true;
+    };
   }, [map]);
 
   if (!position) {
