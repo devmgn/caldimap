@@ -14,10 +14,13 @@ import { useToday } from "../../_hooks/use-today";
 const ALL_PERIODS = "all";
 
 const PERIOD_OPTIONS = [
-  { value: ALL_PERIODS, period: null, label: "すべて" },
-  { value: "active", period: "active", label: "開催中" },
-  { value: "upcoming", period: "upcoming", label: "開催予定" },
-] as const satisfies { value: string; period: PeriodFilter; label: string }[];
+  { value: ALL_PERIODS, label: "すべて" },
+  { value: "active", label: "開催中" },
+  { value: "upcoming", label: "開催予定" },
+] as const satisfies {
+  value: NonNullable<PeriodFilter> | typeof ALL_PERIODS;
+  label: string;
+}[];
 
 interface SaleFilterProps {
   saleTypes: string[];
@@ -70,9 +73,10 @@ export function SaleFilter({
           <RadioGroup
             aria-labelledby={periodLabelId}
             value={period ?? ALL_PERIODS}
-            onValueChange={(value) => {
-              const option = PERIOD_OPTIONS.find((o) => o.value === value);
-              onPeriodChange(option?.period ?? null);
+            onValueChange={(
+              value: (typeof PERIOD_OPTIONS)[number]["value"]
+            ) => {
+              onPeriodChange(value === ALL_PERIODS ? null : value);
             }}
             className="flex rounded-md bg-gray-100 p-0.5 text-xs"
           >
@@ -99,8 +103,9 @@ export function SaleFilter({
               <label key={type} className="flex items-center gap-2 text-sm">
                 <Checkbox.Root
                   value={type}
-                  // The ::after widens the hit area beyond the 16px box
-                  className="relative flex size-4 shrink-0 items-center justify-center rounded-[4px] border border-gray-400 bg-white text-white after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 data-checked:border-gray-900 data-checked:bg-gray-900"
+                  // The ::after widens the hit area beyond the 16px box, short of
+                  // the next row's
+                  className="relative flex size-4 shrink-0 items-center justify-center rounded-[4px] border border-gray-400 bg-white text-white after:absolute after:-inset-x-3 after:-inset-y-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 data-checked:border-gray-900 data-checked:bg-gray-900"
                 >
                   <Checkbox.Indicator className="flex data-unchecked:hidden">
                     <svg

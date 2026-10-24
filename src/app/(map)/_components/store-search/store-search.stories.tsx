@@ -166,6 +166,65 @@ export const IgnoresArrowsWhileComposing: Story = {
   },
 };
 
+export const HoldsBackComposingTextBaseUIPassesOn: Story = {
+  play: async ({ canvasElement }) => {
+    const input = getInput(canvasElement);
+
+    // Android: Base UI skips composition tracking and hands composing text on
+    input.focus();
+    await fireEvent.input(input, {
+      target: { value: "あと" },
+      inputType: "insertCompositionText",
+      isComposing: true,
+    });
+
+    await expect(input).toHaveValue("あと");
+    await expect(page.queryAllByRole("option")).toHaveLength(0);
+
+    await fireEvent.compositionEnd(input);
+
+    await waitFor(async () => {
+      await expect(page.getAllByRole("option")).toHaveLength(2);
+    });
+  },
+};
+
+export const DragSelection: Story = {
+  play: async ({ args, canvasElement }) => {
+    await userEvent.type(getInput(canvasElement), "アトレ");
+    await waitFor(async () => {
+      await expect(highlightedOption()).toHaveTextContent("アトレ吉祥寺店");
+    });
+
+    // A press that starts on the input and is released over a result picks it
+    // on mouseup, with no click on the item
+    const option = highlightedOption();
+
+    if (option === null) {
+      throw new Error("No result is highlighted");
+    }
+
+    await fireEvent.mouseUp(option, { button: 0 });
+
+    await expect(args.onSelect).toHaveBeenCalledWith(STORES[0]);
+  },
+};
+
+export const EnterAfterClosingTakesFirstResult: Story = {
+  play: async ({ args, canvasElement }) => {
+    await userEvent.type(getInput(canvasElement), "アトレ");
+    await page.findByRole("listbox", { name: RESULTS_LABEL });
+    await userEvent.keyboard("{Escape}");
+    await waitFor(async () => {
+      await expect(page.queryByRole("listbox")).not.toBeInTheDocument();
+    });
+
+    await userEvent.keyboard("{Enter}");
+
+    await expect(args.onSelect).toHaveBeenCalledWith(STORES[0]);
+  },
+};
+
 export const ClickSelection: Story = {
   play: async ({ args, canvasElement }) => {
     await userEvent.type(getInput(canvasElement), "大宮");

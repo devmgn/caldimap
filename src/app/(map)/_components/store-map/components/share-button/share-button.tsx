@@ -2,7 +2,7 @@
 
 import type { Store } from "../../../../../../types/stores-data";
 import { Button } from "@base-ui/react/button";
-import { Toast } from "@base-ui/react/toast";
+import { toastManager } from "../../../../_lib/toast-manager";
 import { getStoreShareUrl } from "../../utils/get-store-share-url";
 
 interface ShareButtonProps {
@@ -18,8 +18,6 @@ interface ShareButtonProps {
  * @returns The button
  */
 export function ShareButton({ store }: ShareButtonProps) {
-  const toastManager = Toast.useToastManager();
-
   async function handleClick() {
     const url = getStoreShareUrl(store.id, window.location.origin);
     const data = { title: store.name, url };

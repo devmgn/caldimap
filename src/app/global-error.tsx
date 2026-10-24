@@ -1,7 +1,5 @@
 "use client";
 
-import { Button } from "@base-ui/react/button";
-
 interface ErrorProps {
   error: unknown;
   retry: () => void;
@@ -23,7 +21,9 @@ export default function GlobalError(props: ErrorProps) {
     <html lang="ja">
       <body>
         <h2>Something went wrong! (global-error)</h2>
-        <Button onClick={retry}>Try again</Button>
+        <button onClick={retry} type="button">
+          Try again
+        </button>
       </body>
     </html>
   );
