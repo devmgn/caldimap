@@ -11,3 +11,6 @@ export const JAPAN_ZOOM = 5;
 
 /** Zoom level used when centering on the user's position. */
 export const DEFAULT_ZOOM = 16;
+
+/** Deepest zoom level: the highest one OpenStreetMap's standard tiles serve. */
+export const MAX_ZOOM = 18;
