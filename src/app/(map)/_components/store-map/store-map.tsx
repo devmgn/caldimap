@@ -12,7 +12,6 @@ import {
   JAPAN_ZOOM,
   MAX_ZOOM,
 } from "./utils/map-config";
-import { useSelectedStore } from "../../_hooks/use-selected-store";
 
 interface StoreMapProps {
   stores: Store[];
@@ -35,8 +34,6 @@ interface StoreMapProps {
  * @returns The map
  */
 export function StoreMap({ stores, selectedStore, onMapReady }: StoreMapProps) {
-  const { storeId, closeStore } = useSelectedStore();
-
   // Only read when the map is created; later selections move it explicitly
   const initialView =
     selectedStore === null
@@ -46,13 +43,6 @@ export function StoreMap({ stores, selectedStore, onMapReady }: StoreMapProps) {
   return (
     <MapContainer
       ref={onMapReady}
-      // Runs once, with the URL the page opened with: a shared link to a store
-      // that no longer exists drops its dead ID instead of keeping it around
-      whenReady={() => {
-        if (storeId !== null && selectedStore === null) {
-          closeStore(storeId);
-        }
-      }}
       center={[initialView.center.lat, initialView.center.lng]}
       zoom={initialView.zoom}
       maxZoom={MAX_ZOOM}

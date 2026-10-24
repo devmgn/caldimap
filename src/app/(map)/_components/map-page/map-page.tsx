@@ -1,11 +1,15 @@
 "use client";
 
 import type { Store, StoresData } from "../../../../types/stores-data";
+import type { PeriodFilter } from "../../_hooks/use-sale-filter";
 import type { Map as LeafletMap } from "leaflet";
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { useSaleFilter } from "../../_hooks/use-sale-filter";
 import { useSelectedStore } from "../../_hooks/use-selected-store";
+import { useToday } from "../../_hooks/use-today";
+import { toastManager } from "../../_lib/toast-manager";
+import { ToastProvider } from "../../_providers/toast-provider";
 import { SaleFilter } from "../sale-filter";
 import { DEFAULT_ZOOM } from "../store-map/utils/map-config";
 import { StoreSearch } from "../store-search";
@@ -35,46 +39,104 @@ export function MapPage({ data }: MapPageProps) {
   const {
     saleTypes,
     selectedSales,
-    toggleSale,
+    changeSales,
     period,
     changePeriod,
     filteredStores,
+    hides,
+    revealStore,
   } = useSaleFilter(data.stores);
 
-  const { storeId, selectStore } = useSelectedStore();
+  const { storeId, selectStore, closeStore } = useSelectedStore();
   const [map, setMap] = useState<LeafletMap | null>(null);
 
   // Unknown IDs (e.g. a store that has since closed) select nothing
   const selectedStore =
     data.stores.find((store) => store.id === storeId) ?? null;
 
+  // A popup over a store the filter hides has no marker under it, which reads
+  // as a glitch. Search ignores the filter on purpose, so clear what hides the
+  // store instead, and say so
+  function showStore(store: Store) {
+    if (revealStore(store)) {
+      toastManager.add({ description: "絞り込みを解除しました" });
+    }
+  }
+
   function handleSearchSelect(store: Store) {
     // setView jumps straight there (animating only short zooms); flyTo's
     // zoom-out-and-back takes seconds for a store across the country
     map?.setView([store.lat, store.lng], Math.max(map.getZoom(), DEFAULT_ZOOM));
     selectStore(store.id);
+    showStore(store);
   }
 
+  // The user narrowed the map on purpose, so a popup their new filter hides
+  // closes rather than undoing the filter
+  function handleSalesChange(next: string[]) {
+    changeSales(next);
+
+    if (
+      selectedStore !== null &&
+      hides(selectedStore, { selectedSales: next })
+    ) {
+      closeStore(selectedStore.id);
+    }
+  }
+
+  function handlePeriodChange(next: PeriodFilter) {
+    changePeriod(next);
+
+    if (selectedStore !== null && hides(selectedStore, { period: next })) {
+      closeStore(selectedStore.id);
+    }
+  }
+
+  // The URL the page opened with may select a store its filter hides, or one
+  // that no longer exists. Settle that once, after hydration: the period check
+  // needs the browser's "today", and the toast provider is listening by then
+  const todayKnown = useToday() !== null;
+  const openedUrlSettled = useRef(false);
+
+  const settleOpenedUrl = useEffectEvent(() => {
+    if (selectedStore !== null) {
+      showStore(selectedStore);
+    } else if (storeId !== null) {
+      closeStore(storeId);
+    }
+  });
+
+  useEffect(() => {
+    if (!todayKnown || openedUrlSettled.current) {
+      return;
+    }
+
+    openedUrlSettled.current = true;
+    settleOpenedUrl();
+  }, [todayKnown]);
+
   return (
-    <div className="relative h-dvh w-full">
-      <StoreMap
-        stores={filteredStores}
-        selectedStore={selectedStore}
-        onMapReady={setMap}
-      />
-      <div className="absolute top-4 left-4 z-1000 flex w-56 flex-col gap-2">
-        <StoreSearch stores={data.stores} onSelect={handleSearchSelect} />
-        <SaleFilter
-          saleTypes={saleTypes}
-          selectedSales={selectedSales}
-          onToggle={toggleSale}
-          period={period}
-          onPeriodChange={changePeriod}
-          totalCount={data.stores.length}
-          filteredCount={filteredStores.length}
-          updatedAt={data.updatedAt}
+    <ToastProvider>
+      <div className="relative h-dvh w-full">
+        <StoreMap
+          stores={filteredStores}
+          selectedStore={selectedStore}
+          onMapReady={setMap}
         />
+        <div className="absolute top-4 left-4 z-1000 flex w-56 flex-col gap-2">
+          <StoreSearch stores={data.stores} onSelect={handleSearchSelect} />
+          <SaleFilter
+            saleTypes={saleTypes}
+            selectedSales={selectedSales}
+            onSalesChange={handleSalesChange}
+            period={period}
+            onPeriodChange={handlePeriodChange}
+            totalCount={data.stores.length}
+            filteredCount={filteredStores.length}
+            updatedAt={data.updatedAt}
+          />
+        </div>
       </div>
-    </div>
+    </ToastProvider>
   );
 }

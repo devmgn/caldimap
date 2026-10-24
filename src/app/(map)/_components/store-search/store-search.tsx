@@ -1,8 +1,9 @@
 "use client";
 
 import type { Store } from "../../../../types/stores-data";
-import type { FocusEvent, KeyboardEvent, SubmitEvent } from "react";
-import { useId, useRef, useState } from "react";
+import type { SubmitEvent } from "react";
+import { Autocomplete } from "@base-ui/react/autocomplete";
+import { useState } from "react";
 import { createStoreSearch } from "./utils/create-store-search";
 
 interface StoreSearchProps {
@@ -11,35 +12,33 @@ interface StoreSearchProps {
 }
 
 /**
- * Search box over store names and addresses. The results are plain buttons:
- * ↓ moves from the input into them, ↑↓ move between them, Enter or Space picks
- * one, and Escape clears the search. Text an IME is still composing doesn't
- * search until it's confirmed. Enter in the input submits the form and
- * takes the first result; browsers don't submit while Enter only confirms an
- * IME conversion. Picking a result hands the store to `onSelect`, which moves
- * the map there.
+ * Search box over store names and addresses, built on Base UI's Autocomplete
+ * (an ARIA combobox). Typing highlights the first match, ↑↓ move the highlight
+ * while focus stays in the input, and Enter or a click picks it; Enter with
+ * nothing highlighted, or with the list closed, takes the first match. Text an
+ * IME is still composing doesn't search, and the keys an IME uses are left to
+ * it. Escape closes the list and clears the search. Picking a store hands it to
+ * `onSelect`, which moves the map there, and clears the input.
  *
  * @param props - The stores to search and the selection handler
  * @returns The search box with its results
  */
 export function StoreSearch({ stores, onSelect }: StoreSearchProps) {
   // What the input shows, including text an IME is still composing
+  const [inputValue, setInputValue] = useState("");
+  // What the results follow: confirmed text only. Base UI holds composing text
+  // back on its own, except on Android, where it skips composition tracking
   const [query, setQuery] = useState("");
-  // What the results follow: only confirmed text, so unconverted kana doesn't search
-  const [searchQuery, setSearchQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const inputId = useId();
-  const inputRef = useRef<HTMLInputElement>(null);
-  const listRef = useRef<HTMLUListElement>(null);
 
+  // Our own matching (width, case, kana folding and a result cap) replaces
+  // Base UI's built-in filter
   const searchStores = createStoreSearch(stores);
-  const results = searchStores(searchQuery);
-  const showResults = isOpen && searchQuery.trim() !== "";
+  const results = searchStores(query);
 
   function clear() {
+    setInputValue("");
     setQuery("");
-    setSearchQuery("");
-    inputRef.current?.focus();
   }
 
   function select(store: Store) {
@@ -47,55 +46,9 @@ export function StoreSearch({ stores, onSelect }: StoreSearchProps) {
     clear();
   }
 
-  // Moves focus by `step` among the result buttons, wrapping at both ends
-  function moveFocus(step: number) {
-    const buttons = [...(listRef.current?.querySelectorAll("button") ?? [])];
-
-    if (buttons.length === 0) {
-      return;
-    }
-
-    const focused = document.activeElement;
-
-    const current =
-      focused instanceof HTMLButtonElement ? buttons.indexOf(focused) : -1;
-
-    // From the input (-1), ↓ lands on the first result and ↑ on the last
-    const start = current === -1 && step < 0 ? 0 : current;
-    const next = (start + step + buttons.length) % buttons.length;
-
-    buttons[next]?.focus();
-  }
-
-  function handleKeyDown(event: KeyboardEvent<HTMLElement>) {
-    // While an IME composes (e.g. Japanese input), the arrows pick conversion
-    // candidates and Escape cancels the conversion
-    if (event.nativeEvent.isComposing) {
-      return;
-    }
-
-    switch (event.key) {
-      case "ArrowDown": {
-        event.preventDefault();
-        moveFocus(1);
-        break;
-      }
-
-      case "ArrowUp": {
-        event.preventDefault();
-        moveFocus(-1);
-        break;
-      }
-
-      case "Escape": {
-        clear();
-        break;
-      }
-
-      default:
-    }
-  }
-
+  // Base UI leaves Enter to the form when the list is closed or nothing is
+  // highlighted, and browsers don't submit while Enter confirms an IME
+  // conversion
   function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     const first = results.at(0);
@@ -105,104 +58,131 @@ export function StoreSearch({ stores, onSelect }: StoreSearchProps) {
     }
   }
 
-  // Close once focus leaves the whole widget, not when it moves into a result
-  function handleBlur(event: FocusEvent<HTMLElement>) {
-    if (!event.currentTarget.contains(event.relatedTarget)) {
-      setIsOpen(false);
-    }
-  }
-
-  let status = "";
-
-  if (showResults) {
-    status =
-      results.length > 0
-        ? `${results.length}件の店舗が見つかりました`
-        : "該当する店舗がありません";
-  }
-
   return (
-    <search
-      className="relative"
-      onFocus={() => {
-        setIsOpen(true);
-      }}
-      onBlur={handleBlur}
-    >
-      <form onSubmit={handleSubmit}>
-        <label htmlFor={inputId} className="sr-only">
-          店舗名・住所で検索
-        </label>
-        <input
-          ref={inputRef}
-          id={inputId}
-          name="store-search"
-          type="search"
-          autoComplete="off"
-          spellCheck={false}
-          enterKeyHint="search"
-          placeholder="店舗名・住所で検索"
-          value={query}
-          onChange={(event) => {
-            setQuery(event.target.value);
+    <search>
+      <form onSubmit={handleSubmit} className="relative">
+        <Autocomplete.Root
+          items={results}
+          filter={null}
+          value={inputValue}
+          onValueChange={(next, details) => {
+            // Picking a result, by click, Enter, or a press dragged onto it,
+            // reports the item's string value: its store ID
+            if (details.reason === "item-press") {
+              const store = results.find((s) => s.id === next);
 
-            const native = event.nativeEvent;
+              if (store !== undefined) {
+                select(store);
+              }
+
+              return;
+            }
+
+            setInputValue(next);
+            const native = details.event;
 
             if (!(native instanceof InputEvent && native.isComposing)) {
-              setSearchQuery(event.target.value);
+              setQuery(next);
             }
           }}
-          // Browsers differ on whether the last input event comes before or
-          // after compositionend, so confirming the text searches here too
-          onCompositionEnd={(event) => {
-            setSearchQuery(event.currentTarget.value);
+          itemToStringValue={(store) => store.id}
+          // Shown only with something to search for, so Base UI never reports
+          // an expanded list that isn't on screen
+          open={isOpen && query.trim() !== ""}
+          onOpenChange={(nextOpen, details) => {
+            setIsOpen(nextOpen);
+
+            // One Escape cancels the search, so a following Enter can't jump
+            // the map to the first result
+            if (details.reason === "escape-key") {
+              clear();
+            }
           }}
-          onKeyDown={handleKeyDown}
-          className="w-full rounded-lg border bg-white px-3 py-2 text-sm shadow-sm focus-visible:outline-2 focus-visible:outline-blue-600"
-        />
-      </form>
-      {showResults ? (
-        <div className="absolute top-full right-0 left-0 mt-1 rounded-lg border bg-white shadow-md">
-          {results.length > 0 ? (
-            <ul
-              ref={listRef}
-              aria-label="検索結果"
-              className="max-h-72 overflow-y-auto py-1"
+          autoHighlight
+          // Moving the pointer off the list keeps the highlight for Enter
+          keepHighlight
+        >
+          <Autocomplete.Input
+            type="search"
+            name="store-search"
+            aria-label="店舗名・住所で検索"
+            placeholder="店舗名・住所で検索"
+            spellCheck={false}
+            enterKeyHint="search"
+            onCompositionEnd={(event) => {
+              setQuery(event.currentTarget.value);
+            }}
+            onKeyDown={(event) => {
+              // Base UI ignores only the Enter that confirms a conversion;
+              // while an IME composes, the arrows pick its candidates
+              if (event.nativeEvent.isComposing) {
+                event.preventBaseUIHandler();
+              }
+            }}
+            className="w-full rounded-lg border bg-white py-2 pr-10 pl-3 text-sm shadow-sm focus-visible:outline-2 focus-visible:outline-blue-600"
+          />
+          <Autocomplete.Portal>
+            {/* Above Leaflet's panes and controls (z-index up to 1000) */}
+            <Autocomplete.Positioner
+              sideOffset={4}
+              align="start"
+              className="z-1100 outline-hidden"
             >
-              {results.map((store) => (
-                <li key={store.id}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      select(store);
-                    }}
-                    onKeyDown={handleKeyDown}
-                    // Safari doesn't focus buttons on click, so keep focus in
-                    // the widget and let the click land before blur closes it
-                    onMouseDown={(event) => {
-                      event.preventDefault();
-                    }}
-                    className="block w-full cursor-pointer px-3 py-2 text-left hover:bg-gray-100 focus-visible:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-600"
-                  >
-                    <span className="block text-sm">{store.name}</span>
-                    <span className="block truncate text-xs text-gray-500">
-                      {store.address}
-                    </span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="px-3 py-2 text-xs text-gray-500">
-              該当する店舗がありません
-            </p>
-          )}
-        </div>
-      ) : null}
-      {/* Announces the result count; the visible list carries the content */}
-      <p aria-live="polite" className="sr-only">
-        {status}
-      </p>
+              <Autocomplete.Popup className="w-(--anchor-width) max-w-(--available-width) overflow-hidden rounded-lg border bg-white shadow-md">
+                <Autocomplete.Status className="sr-only">
+                  {results.length > 0
+                    ? `${results.length}件の店舗が見つかりました`
+                    : null}
+                </Autocomplete.Status>
+                {/* Base UI keeps this element mounted and fills it only when
+                    nothing matches */}
+                <Autocomplete.Empty className="px-3 py-2 text-xs text-gray-500 empty:hidden">
+                  該当する店舗がありません
+                </Autocomplete.Empty>
+                <Autocomplete.List
+                  aria-label="検索結果"
+                  className="max-h-[min(18rem,var(--available-height))] overflow-y-auto overscroll-contain py-1 data-empty:p-0"
+                >
+                  {(store: Store) => (
+                    <Autocomplete.Item
+                      key={store.id}
+                      value={store}
+                      className="cursor-pointer px-3 py-2 outline-hidden select-none data-highlighted:bg-gray-100"
+                    >
+                      <span className="block text-sm">{store.name}</span>
+                      <span className="block truncate text-xs text-gray-500">
+                        {store.address}
+                      </span>
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>
+        {/* Takes the first result. Base UI adds a hidden text input of its own,
+            and with two text fields a form only submits on Enter if it has a
+            submit button */}
+        <button
+          type="submit"
+          aria-label="検索"
+          className="absolute top-1/2 right-1 flex size-8 -translate-y-1/2 cursor-pointer items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-blue-600"
+        >
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            className="size-4"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <circle cx="11" cy="11" r="7" />
+            <path d="m20 20-3.5-3.5" />
+          </svg>
+        </button>
+      </form>
     </search>
   );
 }

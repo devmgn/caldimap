@@ -15,8 +15,8 @@ interface SelectedStorePopupProps {
 /**
  * Popup of the store in `?store=`. It stands on its own at the store's
  * position rather than hanging off the marker, so it opens even when the store
- * is inside a cluster or hidden by the sale filter. Closing it (×, Escape, or
- * a click on the map) clears the parameter.
+ * is inside a cluster. (MapPage keeps the sale filter from hiding it.) Closing
+ * it (×, Escape, or a click on the map) clears the parameter.
  *
  * @param props - The selected store
  * @returns The popup

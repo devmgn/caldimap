@@ -1,6 +1,7 @@
 "use client";
 
 import type { LatLng } from "../../../../../../types/stores-data";
+import { Button } from "@base-ui/react/button";
 import { useMap } from "react-leaflet";
 import { DEFAULT_ZOOM } from "../../utils/map-config";
 
@@ -22,8 +23,7 @@ export function MyLocationButton({ position }: MyLocationButtonProps) {
   }
 
   return (
-    <button
-      type="button"
+    <Button
       onClick={handleClick}
       aria-label="現在位置に戻る"
       className="absolute right-3 bottom-6 z-1000 flex size-10 cursor-pointer items-center justify-center rounded-full border-none bg-white shadow-[0_1px_4px_rgba(0,0,0,0.3)]"
@@ -42,6 +42,6 @@ export function MyLocationButton({ position }: MyLocationButtonProps) {
         <circle cx="12" cy="12" r="3" fill="#4285F4" />
         <path d="M12 2v4M12 18v4M2 12h4M18 12h4" />
       </svg>
-    </button>
+    </Button>
   );
 }

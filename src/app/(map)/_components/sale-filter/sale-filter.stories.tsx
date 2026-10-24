@@ -16,7 +16,7 @@ const meta = {
   args: {
     saleTypes: ["お客様感謝セール", "オープンセール"],
     selectedSales: [],
-    onToggle: fn<(saleType: string) => void>(),
+    onSalesChange: fn<(saleTypes: string[]) => void>(),
     period: null,
     onPeriodChange: fn<(period: PeriodFilter) => void>(),
     totalCount: 519,
@@ -40,7 +40,10 @@ export const Default: Story = {
       canvas.getByRole("checkbox", { name: "オープンセール" })
     );
 
-    await expect(args.onToggle).toHaveBeenCalledWith("オープンセール");
+    await expect(args.onSalesChange).toHaveBeenCalledWith(
+      ["オープンセール"],
+      expect.anything()
+    );
 
     await userEvent.click(canvas.getByRole("radio", { name: "開催中" }));
 
