@@ -5,6 +5,7 @@ import type { PeriodFilter } from "../../_hooks/use-sale-filter";
 import type { Map as LeafletMap } from "leaflet";
 import dynamic from "next/dynamic";
 import { useEffect, useEffectEvent, useRef, useState } from "react";
+import { useCurrentPosition } from "../../_hooks/use-current-position";
 import { useSaleFilter } from "../../_hooks/use-sale-filter";
 import { useSelectedStore } from "../../_hooks/use-selected-store";
 import { useToday } from "../../_hooks/use-today";
@@ -14,6 +15,12 @@ import { SaleFilter } from "../sale-filter";
 import { DEFAULT_ZOOM } from "../store-map/utils/map-config";
 import { StoreSearch } from "../store-search";
 
+// Leaflet's own container background, so the map's area isn't blank while it
+// loads or waits for its first view
+function MapPlaceholder() {
+  return <div className="size-full bg-[#ddd]" />;
+}
+
 // Leaflet touches `window` on import, so load the map only in the browser
 const StoreMap = dynamic(
   async () => {
@@ -21,7 +28,7 @@ const StoreMap = dynamic(
 
     return { default: mod.StoreMap };
   },
-  { ssr: false }
+  { ssr: false, loading: () => <MapPlaceholder /> }
 );
 
 interface MapPageProps {
@@ -53,6 +60,17 @@ export function MapPage({ data }: MapPageProps) {
   // Unknown IDs (e.g. a store that has since closed) select nothing
   const selectedStore =
     data.stores.find((store) => store.id === storeId) ?? null;
+
+  // Requested here rather than in the map, so the wait overlaps loading
+  // Leaflet. The map opens once its first view is known: on the shared store,
+  // or on the user's position instead of Japan followed by a jump. Once open
+  // it stays, since hiding it again would rebuild it at another view
+  const { position, settled } = useCurrentPosition();
+  const [mapOpened, setMapOpened] = useState(false);
+
+  if (!mapOpened && (selectedStore !== null || settled)) {
+    setMapOpened(true);
+  }
 
   // A popup over a store the filter hides has no marker under it, which reads
   // as a glitch. Search ignores the filter on purpose, so clear what hides the
@@ -118,11 +136,16 @@ export function MapPage({ data }: MapPageProps) {
   return (
     <ToastProvider>
       <div className="relative h-dvh w-full">
-        <StoreMap
-          stores={filteredStores}
-          selectedStore={selectedStore}
-          onMapReady={setMap}
-        />
+        {mapOpened ? (
+          <StoreMap
+            stores={filteredStores}
+            selectedStore={selectedStore}
+            position={position}
+            onMapReady={setMap}
+          />
+        ) : (
+          <MapPlaceholder />
+        )}
         <div className="absolute top-4 left-4 z-1000 flex w-56 flex-col gap-2">
           <StoreSearch stores={data.stores} onSelect={handleSearchSelect} />
           <SaleFilter
