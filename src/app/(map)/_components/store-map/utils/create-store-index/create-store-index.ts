@@ -26,7 +26,10 @@ function rank(color: MarkerColor) {
  * @param now - The current time (injectable for tests)
  * @returns The loaded index
  */
-export function createStoreIndex(stores: Store[], now = new Date()) {
+export function createStoreIndex(
+  stores: Store[],
+  now: Date | number = new Date()
+) {
   const index = new Supercluster<StorePointProps, StoreClusterProps>({
     // In pixels; wide enough that the 36px cluster icons don't overlap
     radius: 60,

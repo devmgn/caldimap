@@ -26,8 +26,14 @@ interface MapPageProps {
  * @returns The map page
  */
 export function MapPage({ data }: MapPageProps) {
-  const { saleTypes, selectedSales, toggleSale, filteredStores } =
-    useSaleFilter(data.stores);
+  const {
+    saleTypes,
+    selectedSales,
+    toggleSale,
+    period,
+    changePeriod,
+    filteredStores,
+  } = useSaleFilter(data.stores);
 
   return (
     <div className="relative h-dvh w-full">
@@ -37,8 +43,11 @@ export function MapPage({ data }: MapPageProps) {
           saleTypes={saleTypes}
           selectedSales={selectedSales}
           onToggle={toggleSale}
+          period={period}
+          onPeriodChange={changePeriod}
           totalCount={data.stores.length}
           filteredCount={filteredStores.length}
+          updatedAt={data.updatedAt}
         />
       </div>
     </div>
