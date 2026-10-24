@@ -147,4 +147,11 @@ allow = ["types", "components", "hooks", "utils", "lib"]
 [boundaries.coverage]
 # Everything under src/ must belong to a zone, preventing unclassified top-level additions
 requireAllFiles = true
-allowUnmatched = ["tools/**", "scripts/**", ".storybook/**", "*.ts"]
+allowUnmatched = [
+  "tools/**",
+  "scripts/**",
+  ".storybook/**",
+  # Root-level files only; a bare `*.ts` triggers fallow's "no longer matches nested files" warning
+  "*.config.ts",
+  "vitest.global-setup.ts",
+]
