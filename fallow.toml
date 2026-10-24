@@ -15,6 +15,9 @@ ignoreDependencies = [
   "oxlint-plugin-react-doctor",
   # Referenced as strings in config files
   "@tailwindcss/turbopack",
+  # MCP servers started from .mcp.json
+  "@upstash/context7-mcp",
+  "next-devtools-mcp",
 ]
 
 [rules]
