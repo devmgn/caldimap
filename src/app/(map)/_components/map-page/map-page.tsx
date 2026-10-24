@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import { useState } from "react";
 import { useSaleFilter } from "../../_hooks/use-sale-filter";
 import { useSelectedStore } from "../../_hooks/use-selected-store";
+import { toastManager } from "../../_lib/toast-manager";
 import { ToastProvider } from "../../_providers/toast-provider";
 import { SaleFilter } from "../sale-filter";
 import { DEFAULT_ZOOM } from "../store-map/utils/map-config";
@@ -40,20 +41,47 @@ export function MapPage({ data }: MapPageProps) {
     period,
     changePeriod,
     filteredStores,
+    hides,
+    clearFilters,
   } = useSaleFilter(data.stores);
 
-  const { storeId, selectStore } = useSelectedStore();
+  const { storeId, selectStore, closeStore } = useSelectedStore();
   const [map, setMap] = useState<LeafletMap | null>(null);
 
   // Unknown IDs (e.g. a store that has since closed) select nothing
   const selectedStore =
     data.stores.find((store) => store.id === storeId) ?? null;
 
+  // A popup over a store the filter hides has no marker under it, which reads
+  // as a glitch. Search ignores the filter on purpose, so clear the filter
+  // instead, and say so
+  function revealStore(store: Store) {
+    if (hides(store)) {
+      clearFilters();
+      toastManager.add({ description: "絞り込みを解除しました" });
+    }
+  }
+
   function handleSearchSelect(store: Store) {
     // setView jumps straight there (animating only short zooms); flyTo's
     // zoom-out-and-back takes seconds for a store across the country
     map?.setView([store.lat, store.lng], Math.max(map.getZoom(), DEFAULT_ZOOM));
     selectStore(store.id);
+    revealStore(store);
+  }
+
+  // Runs once, with the URL the page opened with
+  function handleMapLoad() {
+    if (selectedStore !== null) {
+      revealStore(selectedStore);
+
+      return;
+    }
+
+    // A link to a store that no longer exists drops its dead ID
+    if (storeId !== null) {
+      closeStore(storeId);
+    }
   }
 
   return (
@@ -63,6 +91,7 @@ export function MapPage({ data }: MapPageProps) {
           stores={filteredStores}
           selectedStore={selectedStore}
           onMapReady={setMap}
+          onLoad={handleMapLoad}
         />
         <div className="absolute top-4 left-4 z-1000 flex w-56 flex-col gap-2">
           <StoreSearch stores={data.stores} onSelect={handleSearchSelect} />

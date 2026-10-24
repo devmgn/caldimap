@@ -168,6 +168,40 @@ describe(useSaleFilter, () => {
       expect(html).toBe(`<span>${PERIOD_STORES.length}</span>`);
     });
 
+    it("tells whether the current selection hides a store", () => {
+      const { result } = renderHook(() => useSaleFilter(PERIOD_STORES), {
+        wrapper: withNuqsTestingAdapter({ searchParams: "?period=active" }),
+      });
+
+      const [active, upcoming] = PERIOD_STORES;
+
+      expect(result.current.hides(active)).toBeFalsy();
+      expect(result.current.hides(upcoming)).toBeTruthy();
+    });
+
+    it("clears both the sale types and the period", async () => {
+      const urls: string[] = [];
+
+      const { result } = renderHook(() => useSaleFilter(PERIOD_STORES), {
+        wrapper: withNuqsTestingAdapter({
+          searchParams: "?sales=オープンセール&period=active",
+          hasMemory: true,
+          onUrlUpdate: ({ queryString }) => {
+            urls.push(queryString);
+          },
+        }),
+      });
+
+      act(() => {
+        result.current.clearFilters();
+      });
+
+      await waitFor(() => {
+        expect(urls.at(-1)).toBe("");
+      });
+      expect(result.current.filteredStores).toBe(PERIOD_STORES);
+    });
+
     it("ignores an unknown period", () => {
       expect(filteredIds("?period=ended")).toHaveLength(PERIOD_STORES.length);
     });

@@ -12,7 +12,6 @@ import {
   JAPAN_ZOOM,
   MAX_ZOOM,
 } from "./utils/map-config";
-import { useSelectedStore } from "../../_hooks/use-selected-store";
 
 interface StoreMapProps {
   stores: Store[];
@@ -23,6 +22,8 @@ interface StoreMapProps {
   selectedStore: Store | null;
   /** Receives the Leaflet map, so controls outside the map can move it. */
   onMapReady: (map: LeafletMap | null) => void;
+  /** Runs once, when the map is created, with the state the page opened with. */
+  onLoad: () => void;
 }
 
 /**
@@ -30,13 +31,16 @@ interface StoreMapProps {
  * store when the page loads with one (a shared link), otherwise centers on the
  * user once geolocation resolves.
  *
- * @param props - The stores to show, the selected store, and a callback for
- *   the Leaflet map
+ * @param props - The stores to show, the selected store, a callback for the
+ *   Leaflet map, and one for when it loads
  * @returns The map
  */
-export function StoreMap({ stores, selectedStore, onMapReady }: StoreMapProps) {
-  const { storeId, closeStore } = useSelectedStore();
-
+export function StoreMap({
+  stores,
+  selectedStore,
+  onMapReady,
+  onLoad,
+}: StoreMapProps) {
   // Only read when the map is created; later selections move it explicitly
   const initialView =
     selectedStore === null
@@ -46,13 +50,8 @@ export function StoreMap({ stores, selectedStore, onMapReady }: StoreMapProps) {
   return (
     <MapContainer
       ref={onMapReady}
-      // Runs once, with the URL the page opened with: a shared link to a store
-      // that no longer exists drops its dead ID instead of keeping it around
-      whenReady={() => {
-        if (storeId !== null && selectedStore === null) {
-          closeStore(storeId);
-        }
-      }}
+      // Leaflet calls it once, when the map is created
+      whenReady={onLoad}
       center={[initialView.center.lat, initialView.center.lng]}
       zoom={initialView.zoom}
       maxZoom={MAX_ZOOM}

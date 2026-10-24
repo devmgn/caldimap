@@ -70,7 +70,8 @@ function filterStores(
  *
  * @param stores - All stores
  * @returns The sale types, the selected types and period with their setters,
- *   and the stores holding a sale that matches both
+ *   the stores holding a sale that matches both, whether a store is hidden by
+ *   the current selection, and a function that clears it
  */
 export function useSaleFilter(stores: Store[]) {
   const [selectedSales, setSelectedSales] = useQueryState(
@@ -103,6 +104,16 @@ export function useSaleFilter(stores: Store[]) {
     void setPeriod(next);
   }
 
+  // Uses the current selection, not the deferred one the map is catching up to
+  function hides(store: Store) {
+    return filterStores([store], { selectedSales, period, today }).length === 0;
+  }
+
+  function clearFilters() {
+    void setSelectedSales([]);
+    void setPeriod(null);
+  }
+
   return {
     saleTypes,
     selectedSales,
@@ -110,5 +121,7 @@ export function useSaleFilter(stores: Store[]) {
     period,
     changePeriod,
     filteredStores,
+    hides,
+    clearFilters,
   };
 }
