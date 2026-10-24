@@ -1,11 +1,11 @@
 "use client";
 
-import type { Sale, Store } from "../../../../types/stores-data";
+import type { Sale, Store } from "../../../../../../types/stores-data";
 import { parseISO } from "date-fns";
-import { ShareButton } from "./share-button";
-import { getDirectionsUrl } from "./utils/get-directions-url";
-import { useToday } from "../../_hooks/use-today";
-import { getSalePeriod } from "../../_lib/get-sale-period";
+import { useToday } from "../../../../_hooks/use-today";
+import { getSalePeriod } from "../../../../_lib/get-sale-period";
+import { getDirectionsUrl } from "../../utils/get-directions-url";
+import { ShareButton } from "../share-button";
 
 function SalePeriodBadge({ sale }: { sale: Sale }) {
   const today = useToday();

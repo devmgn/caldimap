@@ -1,12 +1,12 @@
-import type { Store } from "../../../../types/stores-data";
+import type { Store } from "../../../../../../types/stores-data";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import type { Map as LeafletMap } from "leaflet";
 import { withNuqsTestingAdapter } from "nuqs/adapters/testing";
 import { MapContainer } from "react-leaflet";
 import { expect, fireEvent, fn, waitFor } from "storybook/test";
-import { SelectedStorePopup } from "./selected-store-popup";
 import { StoreMarker } from "./store-marker";
-import { useSelectedStore } from "../../_hooks/use-selected-store";
+import { useSelectedStore } from "../../../../_hooks/use-selected-store";
+import { SelectedStorePopup } from "../selected-store-popup";
 
 const STORE: Store = {
   id: "197",

@@ -1,6 +1,6 @@
 "use client";
 
-import type { LatLng } from "../../../../types/stores-data";
+import type { LatLng } from "../../../../../../types/stores-data";
 import { CircleMarker, Pane } from "react-leaflet";
 
 // Above the cluster markers (`markerPane`, 600) and below popups (`popupPane`, 700)

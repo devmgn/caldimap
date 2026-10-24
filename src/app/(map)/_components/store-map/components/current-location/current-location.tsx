@@ -1,11 +1,11 @@
 "use client";
 
-import type { LatLng, Store } from "../../../../types/stores-data";
+import type { LatLng, Store } from "../../../../../../types/stores-data";
 import { useEffect, useEffectEvent, useState } from "react";
 import { useMap } from "react-leaflet";
-import { CurrentLocationMarker } from "./current-location-marker";
-import { MyLocationButton } from "./my-location-button";
-import { DEFAULT_ZOOM } from "./utils/map-config";
+import { DEFAULT_ZOOM } from "../../utils/map-config";
+import { CurrentLocationMarker } from "../current-location-marker";
+import { MyLocationButton } from "../my-location-button";
 
 const GEOLOCATION_OPTIONS: PositionOptions = {
   timeout: 10_000,

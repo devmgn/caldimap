@@ -1,9 +1,9 @@
 "use client";
 
-import type { Store } from "../../../../types/stores-data";
+import type { Store } from "../../../../../../types/stores-data";
 import { DomEvent } from "leaflet";
 import { CircleMarker, useMap } from "react-leaflet";
-import { useSelectedStore } from "../../_hooks/use-selected-store";
+import { useSelectedStore } from "../../../../_hooks/use-selected-store";
 
 interface StoreMarkerProps {
   store: Store;

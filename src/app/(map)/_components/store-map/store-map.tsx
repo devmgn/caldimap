@@ -3,9 +3,9 @@
 import type { Store } from "../../../../types/stores-data";
 import type { Map as LeafletMap } from "leaflet";
 import { MapContainer, TileLayer } from "react-leaflet";
-import { CurrentLocation } from "./current-location";
-import { SelectedStorePopup } from "./selected-store-popup";
-import { StoreClusters } from "./store-clusters";
+import { CurrentLocation } from "./components/current-location";
+import { SelectedStorePopup } from "./components/selected-store-popup";
+import { StoreClusters } from "./components/store-clusters";
 import {
   DEFAULT_ZOOM,
   JAPAN_CENTER,
