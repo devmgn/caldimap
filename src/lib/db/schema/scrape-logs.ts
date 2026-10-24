@@ -6,4 +6,4 @@ export const scrapeLogs = pgTable("scrape_logs", {
     .notNull()
     .defaultNow(),
   storeCount: integer("store_count").notNull(),
-});
+}).enableRLS();
