@@ -12,7 +12,7 @@
     "lint:dead-code": "fallow dead-code && fallow dead-code --production",
     "lint:fallow": "fallow dead-code && fallow dupes && fallow health --report-only && fallow security",
     "test": "vitest run",
-    "test:unit": "vitest run --project=unit",
+    "test:unit": "vitest run --project=unit --project=unit-utc",
     "test:oxlint-rules": "vitest run --project=oxlint-rules",
     "test:update": "vitest run --update",
     "test:watch": "vitest watch",
@@ -43,6 +43,7 @@
     "zod": "4.6.7"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.11",
     "@next/env": "16.4.2",
     "@oxlint/plugins": "1.89.0",
     "@storybook/addon-a11y": "10.6.3",

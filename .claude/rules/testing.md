@@ -3,6 +3,7 @@ paths:
   - "**/*.test.ts"
   - "**/*.test.tsx"
   - "**/*.test-d.ts"
+  - "**/*.test-utc.ts"
 ---
 
 # Testing Rules
@@ -15,6 +16,8 @@ paths:
 - `mockReset: true` + `restoreMocks: true` — mock implementations reset and spies restored before each test
 - `vitest.global-setup.ts` loads env vars via `@next/env`, sets `TZ=Asia/Tokyo`
 - **Type tests**: `typecheck.enabled: true`. Write `expectTypeOf` / `assertType` in `*.test-d.ts` files to have type errors surface as test failures.
+- **Time zone independence**: code that must not depend on the runtime time zone (prerendered output is built in UTC) gets a `*.test-utc.ts` file. The `unit-utc` project runs those with `TZ=UTC` in forked processes; stubbing `TZ` inside a regular (threaded) test has no effect. Assert the offset is 0 first, so the test can't pass by accident. `pnpm test:unit` runs both projects.
+- **Database queries**: test against an in-process Postgres (`@electric-sql/pglite` + `drizzle-orm/pglite`, migrated from `drizzle/migrations`), never the `DATABASE_URL` in `.env`. Queries take the database as an argument (see `select-stores-with-sales`); a `"use cache"` function can't, since its arguments become the cache key, so keep the cached wrapper thin. Add `// @vitest-environment node` to the file. Module mocking is not allowed (`anti-slop/no-module-mocking`)
 
 ## Excluded from Coverage
 
