@@ -1,13 +1,13 @@
 "use client";
 
-import type { Store } from "../../../../types/stores-data";
+import type { Store } from "../../../../../../types/stores-data";
 import type { Map as LeafletMap } from "leaflet";
 import { useState } from "react";
 import { useMap, useMapEvents } from "react-leaflet";
-import { ClusterMarker } from "./cluster-marker";
-import { StoreMarker } from "./store-marker";
-import { createStoreIndex } from "./utils/create-store-index";
-import { useToday } from "../../_hooks/use-today";
+import { useToday } from "../../../../_hooks/use-today";
+import { createStoreIndex } from "../../utils/create-store-index";
+import { ClusterMarker } from "../cluster-marker";
+import { StoreMarker } from "../store-marker";
 
 // Render a margin around the viewport so markers don't pop in while panning
 const BOUNDS_PADDING = 0.2;

@@ -1,9 +1,9 @@
 "use client";
 
-import type { LatLng, Store } from "../../../../types/stores-data";
+import type { LatLng, Store } from "../../../../../../types/stores-data";
 import { divIcon } from "leaflet";
 import { Marker, Popup, useMap } from "react-leaflet";
-import { StoreDetails } from "./store-details";
+import { StoreDetails } from "../store-details";
 
 const ICON_SIZE = 36;
 

@@ -137,6 +137,25 @@ components/
         index.ts             # creates the instance
 ```
 
+### Local `components/`
+
+A component built from sub-components that nothing else renders keeps them in a `components/` subdirectory, the same way: a grouping directory (no `index.ts`) with one directory per component. Siblings inside it import each other directly (`../store-marker`).
+
+```
+_components/
+  store-map/
+    store-map.tsx
+    index.ts
+    components/              # grouping (no index.ts)
+      store-marker/
+        store-marker.tsx
+        store-marker.stories.tsx
+        index.ts
+      store-details/
+    utils/                   # grouping (no index.ts)
+      get-marker-color/
+```
+
 ## Colocation under `app/`
 
 Route-specific code goes in underscore-prefixed private folders, split by kind, one feature per directory.

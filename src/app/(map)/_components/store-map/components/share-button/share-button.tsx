@@ -1,8 +1,8 @@
 "use client";
 
-import type { Store } from "../../../../types/stores-data";
+import type { Store } from "../../../../../../types/stores-data";
 import { useState } from "react";
-import { getStoreShareUrl } from "./utils/get-store-share-url";
+import { getStoreShareUrl } from "../../utils/get-store-share-url";
 
 type CopyStatus = "idle" | "copied" | "failed";
 

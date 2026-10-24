@@ -1,8 +1,8 @@
 "use client";
 
-import type { LatLng } from "../../../../types/stores-data";
+import type { LatLng } from "../../../../../../types/stores-data";
 import { useMap } from "react-leaflet";
-import { DEFAULT_ZOOM } from "./utils/map-config";
+import { DEFAULT_ZOOM } from "../../utils/map-config";
 
 interface MyLocationButtonProps {
   position: LatLng;

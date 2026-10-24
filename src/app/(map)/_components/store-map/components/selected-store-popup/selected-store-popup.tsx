@@ -1,9 +1,9 @@
 "use client";
 
-import type { Store } from "../../../../types/stores-data";
+import type { Store } from "../../../../../../types/stores-data";
 import { Popup } from "react-leaflet";
-import { StoreDetails } from "./store-details";
-import { useSelectedStore } from "../../_hooks/use-selected-store";
+import { useSelectedStore } from "../../../../_hooks/use-selected-store";
+import { StoreDetails } from "../store-details";
 
 // Lift the tip above the 10px store marker instead of covering its center
 const POPUP_OFFSET: [number, number] = [0, -6];

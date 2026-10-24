@@ -1,4 +1,4 @@
-import type { Sale, Store } from "../../../../types/stores-data";
+import type { Sale, Store } from "../../../../../../types/stores-data";
 import { render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { StoreDetails } from "./store-details";
