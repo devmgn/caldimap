@@ -1,5 +1,6 @@
 import type { NextRequest } from "next/server";
 import { revalidateTag } from "next/cache";
+import { authorizeCronRequest } from "./_lib/authorize-cron-request";
 import { getStoreCoordsCache } from "../../../lib/db/queries/get-store-coords-cache";
 import { STORES_CACHE_TAG } from "../../../lib/db/queries/get-stores-with-sales";
 import { saveScrapeResult } from "../../../lib/save-scrape-result";
@@ -7,22 +8,26 @@ import { buildStoresData } from "../../../lib/scraper";
 
 /**
  * Cron endpoint that scrapes stores and sales and stores them in the DB.
- * Requires `Authorization: Bearer <CRON_SECRET>`.
+ * Requires `Authorization: Bearer <CRON_SECRET>` and runs only on the
+ * production deployment.
  *
  * @param request - The incoming request
- * @returns The scrape result, or 401 / 500 on failure
+ * @returns The scrape result, or 401 / 403 / 500 on failure
  */
 // Route handlers must be named after the HTTP method they handle
 // oxlint-disable-next-line sonarjs/function-name
 export async function GET(request: NextRequest) {
-  const cronSecret = process.env.CRON_SECRET;
-  const authHeader = request.headers.get("authorization");
+  const authorization = authorizeCronRequest({
+    authHeader: request.headers.get("authorization"),
+    cronSecret: process.env.CRON_SECRET,
+    vercelEnv: process.env.VERCEL_ENV,
+  });
 
-  if (
-    cronSecret === undefined ||
-    cronSecret === "" ||
-    authHeader !== `Bearer ${cronSecret}`
-  ) {
+  if (authorization === "forbidden") {
+    return new Response("Forbidden", { status: 403 });
+  }
+
+  if (authorization === "unauthorized") {
     return new Response("Unauthorized", { status: 401 });
   }
 
