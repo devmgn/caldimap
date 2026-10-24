@@ -2,7 +2,7 @@
 
 interface ErrorProps {
   error: unknown;
-  reset: () => void;
+  retry: () => void;
 }
 
 /**
@@ -10,17 +10,18 @@ interface ErrorProps {
  * template. It replaces the root layout, so it must provide its own `<html>` /
  * `<body>`.
  *
- * @param props - The error passed by Next.js and `reset` to re-render
+ * @param props - The error passed by Next.js and `retry` to re-fetch and
+ *   re-render
  * @returns An HTML document with the error message and a retry button
  */
 export default function GlobalError(props: ErrorProps) {
-  const { reset } = props;
+  const { retry } = props;
 
   return (
     <html lang="ja">
       <body>
         <h2>Something went wrong! (global-error)</h2>
-        <button onClick={reset} type="button">
+        <button onClick={retry} type="button">
           Try again
         </button>
       </body>
