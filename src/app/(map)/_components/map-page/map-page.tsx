@@ -1,11 +1,13 @@
 "use client";
 
 import type { Store, StoresData } from "../../../../types/stores-data";
+import type { PeriodFilter } from "../../_hooks/use-sale-filter";
 import type { Map as LeafletMap } from "leaflet";
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { useSaleFilter } from "../../_hooks/use-sale-filter";
 import { useSelectedStore } from "../../_hooks/use-selected-store";
+import { useToday } from "../../_hooks/use-today";
 import { toastManager } from "../../_lib/toast-manager";
 import { ToastProvider } from "../../_providers/toast-provider";
 import { SaleFilter } from "../sale-filter";
@@ -42,7 +44,7 @@ export function MapPage({ data }: MapPageProps) {
     changePeriod,
     filteredStores,
     hides,
-    clearFilters,
+    revealStore,
   } = useSaleFilter(data.stores);
 
   const { storeId, selectStore, closeStore } = useSelectedStore();
@@ -53,11 +55,10 @@ export function MapPage({ data }: MapPageProps) {
     data.stores.find((store) => store.id === storeId) ?? null;
 
   // A popup over a store the filter hides has no marker under it, which reads
-  // as a glitch. Search ignores the filter on purpose, so clear the filter
-  // instead, and say so
-  function revealStore(store: Store) {
-    if (hides(store)) {
-      clearFilters();
+  // as a glitch. Search ignores the filter on purpose, so clear what hides the
+  // store instead, and say so
+  function showStore(store: Store) {
+    if (revealStore(store)) {
       toastManager.add({ description: "絞り込みを解除しました" });
     }
   }
@@ -67,22 +68,52 @@ export function MapPage({ data }: MapPageProps) {
     // zoom-out-and-back takes seconds for a store across the country
     map?.setView([store.lat, store.lng], Math.max(map.getZoom(), DEFAULT_ZOOM));
     selectStore(store.id);
-    revealStore(store);
+    showStore(store);
   }
 
-  // Runs once, with the URL the page opened with
-  function handleMapLoad() {
-    if (selectedStore !== null) {
-      revealStore(selectedStore);
+  // The user narrowed the map on purpose, so a popup their new filter hides
+  // closes rather than undoing the filter
+  function handleSalesChange(next: string[]) {
+    changeSales(next);
 
+    if (
+      selectedStore !== null &&
+      hides(selectedStore, { selectedSales: next })
+    ) {
+      closeStore(selectedStore.id);
+    }
+  }
+
+  function handlePeriodChange(next: PeriodFilter) {
+    changePeriod(next);
+
+    if (selectedStore !== null && hides(selectedStore, { period: next })) {
+      closeStore(selectedStore.id);
+    }
+  }
+
+  // The URL the page opened with may select a store its filter hides, or one
+  // that no longer exists. Settle that once, after hydration: the period check
+  // needs the browser's "today", and the toast provider is listening by then
+  const todayKnown = useToday() !== null;
+  const openedUrlSettled = useRef(false);
+
+  const settleOpenedUrl = useEffectEvent(() => {
+    if (selectedStore !== null) {
+      showStore(selectedStore);
+    } else if (storeId !== null) {
+      closeStore(storeId);
+    }
+  });
+
+  useEffect(() => {
+    if (!todayKnown || openedUrlSettled.current) {
       return;
     }
 
-    // A link to a store that no longer exists drops its dead ID
-    if (storeId !== null) {
-      closeStore(storeId);
-    }
-  }
+    openedUrlSettled.current = true;
+    settleOpenedUrl();
+  }, [todayKnown]);
 
   return (
     <ToastProvider>
@@ -91,16 +122,15 @@ export function MapPage({ data }: MapPageProps) {
           stores={filteredStores}
           selectedStore={selectedStore}
           onMapReady={setMap}
-          onLoad={handleMapLoad}
         />
         <div className="absolute top-4 left-4 z-1000 flex w-56 flex-col gap-2">
           <StoreSearch stores={data.stores} onSelect={handleSearchSelect} />
           <SaleFilter
             saleTypes={saleTypes}
             selectedSales={selectedSales}
-            onSalesChange={changeSales}
+            onSalesChange={handleSalesChange}
             period={period}
-            onPeriodChange={changePeriod}
+            onPeriodChange={handlePeriodChange}
             totalCount={data.stores.length}
             filteredCount={filteredStores.length}
             updatedAt={data.updatedAt}

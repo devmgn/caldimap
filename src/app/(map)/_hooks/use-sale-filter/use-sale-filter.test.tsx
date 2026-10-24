@@ -179,27 +179,77 @@ describe(useSaleFilter, () => {
       expect(result.current.hides(upcoming)).toBeTruthy();
     });
 
-    it("clears both the sale types and the period", async () => {
-      const urls: string[] = [];
-
+    it("checks a change before it is made", () => {
       const { result } = renderHook(() => useSaleFilter(PERIOD_STORES), {
-        wrapper: withNuqsTestingAdapter({
-          searchParams: "?sales=オープンセール&period=active",
-          hasMemory: true,
-          onUrlUpdate: ({ queryString }) => {
-            urls.push(queryString);
-          },
-        }),
+        wrapper: withNuqsTestingAdapter(),
       });
 
-      act(() => {
-        result.current.clearFilters();
+      const [, upcoming] = PERIOD_STORES;
+
+      expect(result.current.hides(upcoming)).toBeFalsy();
+      expect(result.current.hides(upcoming, { period: "active" })).toBeTruthy();
+    });
+
+    it.each([
+      // The upcoming オープン sale matches the type; only the period hides it
+      [
+        "the period alone",
+        1,
+        "?sales=オープンセール&period=active",
+        "?sales=オープンセール",
+      ],
+      // The running 感謝 sale matches the period; only the type hides it
+      [
+        "the sale types alone",
+        0,
+        "?sales=オープンセール&period=active",
+        "?period=active",
+      ],
+      // The ended 感謝 sale matches neither
+      ["both", 3, "?sales=オープンセール&period=upcoming", ""],
+    ])(
+      "clears %s when that is what hides the store",
+      async (_, storeIndex, searchParams, expectedQuery) => {
+        const queries: string[] = [];
+
+        const { result } = renderHook(() => useSaleFilter(PERIOD_STORES), {
+          wrapper: withNuqsTestingAdapter({
+            searchParams,
+            hasMemory: true,
+            onUrlUpdate: ({ queryString }) => {
+              queries.push(decodeURIComponent(queryString));
+            },
+          }),
+        });
+
+        const target = PERIOD_STORES[storeIndex];
+
+        if (target === undefined) {
+          throw new Error(`No store at ${storeIndex}`);
+        }
+
+        let revealed = false;
+
+        act(() => {
+          revealed = result.current.revealStore(target);
+        });
+
+        expect(revealed).toBeTruthy();
+        await waitFor(() => {
+          expect(queries).toStrictEqual([expectedQuery]);
+        });
+      }
+    );
+
+    it("leaves the selection alone when it doesn't hide the store", () => {
+      const { result } = renderHook(() => useSaleFilter(PERIOD_STORES), {
+        wrapper: withNuqsTestingAdapter({ searchParams: "?period=active" }),
       });
 
-      await waitFor(() => {
-        expect(urls.at(-1)).toBe("");
-      });
-      expect(result.current.filteredStores).toBe(PERIOD_STORES);
+      const [active] = PERIOD_STORES;
+
+      expect(result.current.revealStore(active)).toBeFalsy();
+      expect(result.current.period).toBe("active");
     });
 
     it("ignores an unknown period", () => {

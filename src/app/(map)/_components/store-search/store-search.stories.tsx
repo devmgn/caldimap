@@ -212,16 +212,47 @@ export const DragSelection: Story = {
 
 export const EnterAfterClosingTakesFirstResult: Story = {
   play: async ({ args, canvasElement }) => {
-    await userEvent.type(getInput(canvasElement), "アトレ");
+    const input = getInput(canvasElement);
+
+    await userEvent.type(input, "アトレ");
     await page.findByRole("listbox", { name: RESULTS_LABEL });
-    await userEvent.keyboard("{Escape}");
+
+    // Close the list by clicking away, then come back to the input
+    await userEvent.click(document.body);
     await waitFor(async () => {
       await expect(page.queryByRole("listbox")).not.toBeInTheDocument();
     });
+    input.focus();
 
     await userEvent.keyboard("{Enter}");
 
     await expect(args.onSelect).toHaveBeenCalledWith(STORES[0]);
+  },
+};
+
+export const SearchButtonTakesFirstResult: Story = {
+  play: async ({ args, canvasElement }) => {
+    // Find it while the list is closed: an open list hides the rest of the
+    // page from assistive tech, though the button still takes a click
+    const button = within(canvasElement).getByRole("button", { name: "検索" });
+
+    await userEvent.type(getInput(canvasElement), "アトレ");
+    await userEvent.click(button);
+
+    await expect(args.onSelect).toHaveBeenCalledWith(STORES[0]);
+  },
+};
+
+export const EmptyInputStaysCollapsed: Story = {
+  play: async ({ canvasElement }) => {
+    const input = getInput(canvasElement);
+
+    // ↓ asks Base UI to open the list, but there is nothing to show
+    input.focus();
+    await userEvent.keyboard("{ArrowDown}");
+
+    await expect(input).toHaveAttribute("aria-expanded", "false");
+    await expect(page.queryByRole("listbox")).not.toBeInTheDocument();
   },
 };
 
@@ -265,9 +296,11 @@ export const ClickSelection: Story = {
   },
 };
 
-export const EscapeCloses: Story = {
-  play: async ({ canvasElement }) => {
-    await userEvent.type(getInput(canvasElement), "アトレ");
+export const EscapeClears: Story = {
+  play: async ({ args, canvasElement }) => {
+    const input = getInput(canvasElement);
+
+    await userEvent.type(input, "アトレ");
     await page.findByRole("listbox", { name: RESULTS_LABEL });
 
     await userEvent.keyboard("{Escape}");
@@ -275,6 +308,11 @@ export const EscapeCloses: Story = {
     await waitFor(async () => {
       await expect(page.queryByRole("listbox")).not.toBeInTheDocument();
     });
+    await expect(input).toHaveValue("");
+
+    // A cancelled search leaves nothing for Enter to pick
+    await userEvent.keyboard("{Enter}");
+    await expect(args.onSelect).not.toHaveBeenCalled();
   },
 };
 

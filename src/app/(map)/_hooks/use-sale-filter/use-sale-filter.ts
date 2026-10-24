@@ -6,7 +6,7 @@ import {
   parseAsArrayOf,
   parseAsString,
   parseAsStringLiteral,
-  useQueryState,
+  useQueryStates,
 } from "nuqs";
 import { useDeferredValue } from "react";
 import { getSalePeriod } from "../../_lib/get-sale-period";
@@ -16,6 +16,15 @@ import { useToday } from "../use-today";
 export type PeriodFilter = Exclude<SalePeriod, "ended"> | null;
 
 const PERIODS = ["active", "upcoming"] as const satisfies PeriodFilter[];
+
+// Both criteria live in one URL state, so clearing them is a single write
+const filterParsers = {
+  sales: parseAsArrayOf(parseAsString, ",").withDefault([]),
+  period: parseAsStringLiteral(PERIODS),
+};
+
+/** A change to the selection, as `hides` can check before applying it. */
+type CriteriaChange = Partial<Pick<Criteria, "selectedSales" | "period">>;
 
 interface Criteria {
   selectedSales: string[];
@@ -71,18 +80,12 @@ function filterStores(
  * @param stores - All stores
  * @returns The sale types, the selected types and period with their setters,
  *   the stores holding a sale that matches both, whether a store is hidden by
- *   the current selection, and a function that clears it
+ *   the selection (optionally with a change applied), and a function that
+ *   clears what hides a store
  */
 export function useSaleFilter(stores: Store[]) {
-  const [selectedSales, setSelectedSales] = useQueryState(
-    "sales",
-    parseAsArrayOf(parseAsString, ",").withDefault([])
-  );
-
-  const [period, setPeriod] = useQueryState(
-    "period",
-    parseAsStringLiteral(PERIODS)
-  );
+  const [{ sales: selectedSales, period }, setFilters] =
+    useQueryStates(filterParsers);
 
   const today = useToday();
 
@@ -97,21 +100,37 @@ export function useSaleFilter(stores: Store[]) {
   });
 
   function changeSales(next: string[]) {
-    void setSelectedSales(next);
+    void setFilters({ sales: next });
   }
 
   function changePeriod(next: PeriodFilter) {
-    void setPeriod(next);
+    void setFilters({ period: next });
   }
 
-  // Uses the current selection, not the deferred one the map is catching up to
-  function hides(store: Store) {
-    return filterStores([store], { selectedSales, period, today }).length === 0;
+  // Uses the current selection (not the deferred one the map is catching up
+  // to), with `change` applied, so callers can check a change before making it
+  function hides(store: Store, change: CriteriaChange = {}) {
+    const criteria = { selectedSales, period, today, ...change };
+
+    return filterStores([store], criteria).length === 0;
   }
 
-  function clearFilters() {
-    void setSelectedSales([]);
-    void setPeriod(null);
+  // Clears only what hides the store: the period or the sale types if dropping
+  // one is enough, both otherwise. Returns whether anything was cleared
+  function revealStore(store: Store) {
+    if (!hides(store)) {
+      return false;
+    }
+
+    if (!hides(store, { period: null })) {
+      void setFilters({ period: null });
+    } else if (hides(store, { selectedSales: [] })) {
+      void setFilters({ sales: [], period: null });
+    } else {
+      void setFilters({ sales: [] });
+    }
+
+    return true;
   }
 
   return {
@@ -122,6 +141,6 @@ export function useSaleFilter(stores: Store[]) {
     changePeriod,
     filteredStores,
     hides,
-    clearFilters,
+    revealStore,
   };
 }

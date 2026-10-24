@@ -17,8 +17,8 @@ interface StoreSearchProps {
  * while focus stays in the input, and Enter or a click picks it; Enter with
  * nothing highlighted, or with the list closed, takes the first match. Text an
  * IME is still composing doesn't search, and the keys an IME uses are left to
- * it. Picking a store hands it to `onSelect`, which moves the map there, and
- * clears the input.
+ * it. Escape closes the list and clears the search. Picking a store hands it to
+ * `onSelect`, which moves the map there, and clears the input.
  *
  * @param props - The stores to search and the selection handler
  * @returns The search box with its results
@@ -29,16 +29,21 @@ export function StoreSearch({ stores, onSelect }: StoreSearchProps) {
   // What the results follow: confirmed text only. Base UI holds composing text
   // back on its own, except on Android, where it skips composition tracking
   const [query, setQuery] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
 
   // Our own matching (width, case, kana folding and a result cap) replaces
   // Base UI's built-in filter
   const searchStores = createStoreSearch(stores);
   const results = searchStores(query);
 
-  function select(store: Store) {
-    onSelect(store);
+  function clear() {
     setInputValue("");
     setQuery("");
+  }
+
+  function select(store: Store) {
+    onSelect(store);
+    clear();
   }
 
   // Base UI leaves Enter to the form when the list is closed or nothing is
@@ -55,7 +60,7 @@ export function StoreSearch({ stores, onSelect }: StoreSearchProps) {
 
   return (
     <search>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="relative">
         <Autocomplete.Root
           items={results}
           filter={null}
@@ -81,6 +86,18 @@ export function StoreSearch({ stores, onSelect }: StoreSearchProps) {
             }
           }}
           itemToStringValue={(store) => store.id}
+          // Shown only with something to search for, so Base UI never reports
+          // an expanded list that isn't on screen
+          open={isOpen && query.trim() !== ""}
+          onOpenChange={(nextOpen, details) => {
+            setIsOpen(nextOpen);
+
+            // One Escape cancels the search, so a following Enter can't jump
+            // the map to the first result
+            if (details.reason === "escape-key") {
+              clear();
+            }
+          }}
           autoHighlight
           // Moving the pointer off the list keeps the highlight for Enter
           keepHighlight
@@ -102,9 +119,9 @@ export function StoreSearch({ stores, onSelect }: StoreSearchProps) {
                 event.preventBaseUIHandler();
               }
             }}
-            className="w-full rounded-lg border bg-white px-3 py-2 text-sm shadow-sm focus-visible:outline-2 focus-visible:outline-blue-600"
+            className="w-full rounded-lg border bg-white py-2 pr-10 pl-3 text-sm shadow-sm focus-visible:outline-2 focus-visible:outline-blue-600"
           />
-          <Autocomplete.Portal hidden={query.trim() === ""}>
+          <Autocomplete.Portal>
             {/* Above Leaflet's panes and controls (z-index up to 1000) */}
             <Autocomplete.Positioner
               sideOffset={4}
@@ -143,10 +160,27 @@ export function StoreSearch({ stores, onSelect }: StoreSearchProps) {
             </Autocomplete.Positioner>
           </Autocomplete.Portal>
         </Autocomplete.Root>
-        {/* Base UI adds a hidden text input of its own, and with two text fields
-            a form only submits on Enter if it has a submit button */}
-        <button type="submit" hidden>
-          検索
+        {/* Takes the first result. Base UI adds a hidden text input of its own,
+            and with two text fields a form only submits on Enter if it has a
+            submit button */}
+        <button
+          type="submit"
+          aria-label="検索"
+          className="absolute top-1/2 right-1 flex size-8 -translate-y-1/2 cursor-pointer items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-blue-600"
+        >
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            className="size-4"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <circle cx="11" cy="11" r="7" />
+            <path d="m20 20-3.5-3.5" />
+          </svg>
         </button>
       </form>
     </search>
