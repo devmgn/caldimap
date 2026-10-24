@@ -1,27 +1,60 @@
 "use client";
 
 import type { Store } from "../../../../types/stores-data";
+import type { Map as LeafletMap } from "leaflet";
 import { MapContainer, TileLayer } from "react-leaflet";
 import { CurrentLocation } from "./current-location";
+import { SelectedStorePopup } from "./selected-store-popup";
 import { StoreClusters } from "./store-clusters";
-import { JAPAN_CENTER, JAPAN_ZOOM, MAX_ZOOM } from "./utils/map-config";
+import {
+  DEFAULT_ZOOM,
+  JAPAN_CENTER,
+  JAPAN_ZOOM,
+  MAX_ZOOM,
+} from "./utils/map-config";
+import { useSelectedStore } from "../../_hooks/use-selected-store";
 
 interface StoreMapProps {
   stores: Store[];
+  /**
+   * The store in `?store=`, looked up among all stores so filters can't hide
+   * it.
+   */
+  selectedStore: Store | null;
+  /** Receives the Leaflet map, so controls outside the map can move it. */
+  onMapReady: (map: LeafletMap | null) => void;
 }
 
 /**
- * Leaflet map of the stores, clustered by proximity and centered on the user
- * once geolocation resolves.
+ * Leaflet map of the stores, clustered by proximity. Opens on the selected
+ * store when the page loads with one (a shared link), otherwise centers on the
+ * user once geolocation resolves.
  *
- * @param props - The stores to show
+ * @param props - The stores to show, the selected store, and a callback for
+ *   the Leaflet map
  * @returns The map
  */
-export function StoreMap({ stores }: StoreMapProps) {
+export function StoreMap({ stores, selectedStore, onMapReady }: StoreMapProps) {
+  const { storeId, closeStore } = useSelectedStore();
+
+  // Only read when the map is created; later selections move it explicitly
+  const initialView =
+    selectedStore === null
+      ? { center: JAPAN_CENTER, zoom: JAPAN_ZOOM }
+      : { center: selectedStore, zoom: DEFAULT_ZOOM };
+
   return (
     <MapContainer
-      center={[JAPAN_CENTER.lat, JAPAN_CENTER.lng]}
-      zoom={JAPAN_ZOOM}
+      ref={onMapReady}
+      // Runs once, with the URL the page opened with: a shared link to a store
+      // that no longer exists drops its dead ID instead of keeping it around
+      whenReady={() => {
+        if (storeId !== null && selectedStore === null) {
+          closeStore(storeId);
+        }
+      }}
+      center={[initialView.center.lat, initialView.center.lng]}
+      zoom={initialView.zoom}
       maxZoom={MAX_ZOOM}
       zoomControl={false}
       attributionControl
@@ -31,8 +64,11 @@ export function StoreMap({ stores }: StoreMapProps) {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      <CurrentLocation />
+      <CurrentLocation selectedStore={selectedStore} />
       <StoreClusters stores={stores} />
+      {selectedStore === null ? null : (
+        <SelectedStorePopup key={selectedStore.id} store={selectedStore} />
+      )}
     </MapContainer>
   );
 }
