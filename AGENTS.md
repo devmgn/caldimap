@@ -1,7 +1,7 @@
 ## Core Technology Stack
 
 - **Next.js 16** with App Router, React 19, Turbopack, React Compiler (see `next.config.ts`)
-  - Node.js 24, pnpm 12 (exact versions in `package.json` / `mise.toml`)
+  - Node.js 26, pnpm 12 (exact versions in `package.json` / `mise.toml`)
 - **TypeScript** with strict type checking
 - **Tailwind CSS v4** via `@tailwindcss/turbopack` (Next.js) / `@tailwindcss/vite` (Storybook)
 - **Zod v4** for runtime validation (scraped responses, `data/stores.json`)
