@@ -66,6 +66,7 @@
     "@vitest/coverage-v8": "5.0.5",
     "axe-core": "4.14.0",
     "drizzle-kit": "0.31.11",
+    "eslint-plugin-drizzle": "0.2.3",
     "eslint-plugin-github": "6.1.2",
     "eslint-plugin-jsdoc": "65.4.2",
     "eslint-plugin-sonarjs": "4.2.2",

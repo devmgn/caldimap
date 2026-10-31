@@ -1,6 +1,7 @@
 import { defineConfig } from "oxlint";
 import antiSlop from "ultracite/oxlint/anti-slop";
 import core from "ultracite/oxlint/core";
+import drizzle from "ultracite/oxlint/drizzle";
 import { jsPluginSettings, selectJsPlugins } from "ultracite/oxlint/js-plugins";
 import next from "ultracite/oxlint/next";
 import nextJsPlugins from "ultracite/oxlint/next/js-plugins";
@@ -29,6 +30,7 @@ export default defineConfig({
     next,
     vitest,
     storybook,
+    drizzle,
     nextJsPlugins,
     antiSlop,
     jsPlugins,
@@ -54,8 +56,9 @@ export default defineConfig({
     // Forbid console.log. Allow warn / error as intentional output
     "eslint/no-console": ["error", { allow: ["error", "warn"] }],
 
-    // The Ultracite tanstack preset turned this off in nextjs-boilerplate; keep
-    // the same behaviour now that the preset is gone
+    // Keys follow a meaningful order rather than alphabetical: RuleTester cases
+    // read code → options → errors, selected columns match the result shape,
+    // and ids come before the fields they identify
     "eslint/sort-keys": "off",
 
     // custom-rules/no-restricted-syntax forbids top-level arrows, which conflicts
@@ -116,6 +119,20 @@ export default defineConfig({
         "storybook/no-uninstalled-addons": "error",
       },
       jsPlugins: ["eslint-plugin-storybook"],
+    },
+    {
+      files: ["src/lib/db/**"],
+      jsPlugins: ["eslint-plugin-drizzle"],
+      rules: {
+        "drizzle/enforce-delete-with-where": [
+          "error",
+          { drizzleObjectName: ["db", "tx", "getDb"] },
+        ],
+        "drizzle/enforce-update-with-where": [
+          "error",
+          { drizzleObjectName: ["db", "tx", "getDb"] },
+        ],
+      },
     },
   ],
 });

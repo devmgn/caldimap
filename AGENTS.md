@@ -9,8 +9,8 @@
 - **Drizzle ORM** with Supabase Postgres (`src/lib/db/`, migrations in `drizzle/`). The app connects with the `DATABASE_URL` role, which bypasses RLS; every table has RLS enabled with no policies, so the Supabase Data API exposes nothing
 - **Leaflet** (react-leaflet) for map rendering
 - **Ultracite** (Oxlint + Oxfmt preset) for linting and formatting — entry points are `pnpm check` / `pnpm fix`
-  - Presets (`oxlint.config.ts`): core, react, next, vitest, storybook, anti-slop + js-plugins (github, jsdoc-js, sonarjs, tsdoc, react-doctor)
-  - jsPlugins: `eslint-plugin-storybook` (stories only), own rules in `tools/oxlint-rules/`
+  - Presets (`oxlint.config.ts`): core, react, next, vitest, storybook, drizzle, anti-slop + js-plugins (github, jsdoc-js, sonarjs, tsdoc, react-doctor)
+  - jsPlugins: `eslint-plugin-storybook` (stories only), `eslint-plugin-drizzle` (`src/lib/db/` only), own rules in `tools/oxlint-rules/`. The Ultracite storybook / drizzle presets are empty on Oxlint, so the two ESLint plugins carry the actual rules
   - Type-aware lint + type check enabled (oxlint-tsgolint); TS compiler diagnostics surface as lint errors, so there is no separate `tsc --noEmit` script
   - Suppress comments: `// oxlint-disable-next-line <rule>` (`eslint-disable` is NOT honored; unused directives are errors)
   - Ignore lists live in `tools/lint-ignore/` and are shared by `oxlint.config.ts` / `oxfmt.config.ts` (`fallow.toml` cannot import them, so sync manually)
