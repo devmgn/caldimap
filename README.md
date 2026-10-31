@@ -12,7 +12,7 @@
 | Data      | Drizzle ORM, Supabase Postgres, Zod v4   |
 | Linting   | Ultracite (Oxlint + Oxfmt)               |
 | Testing   | Vitest, Storybook 10                     |
-| Language  | TypeScript (strict), Node.js 24, pnpm 12 |
+| Language  | TypeScript (strict), Node.js 26, pnpm 12 |
 
 ## Getting Started
 
