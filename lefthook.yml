@@ -11,11 +11,11 @@ pre-commit:
         fi
     - name: ultracite
       glob: "*.{js,jsx,ts,tsx,json,jsonc,css,md,mdx,yml,yaml,toml}"
-      run: mise exec -- pnpm ultracite fix --no-error-on-unmatched-pattern {staged_files}
+      run: pnpm ultracite fix --no-error-on-unmatched-pattern {staged_files}
       stage_fixed: true
     - name: test
       glob: "*.{ts,tsx}"
-      run: mise exec -- pnpm vitest related --run {staged_files}
+      run: pnpm vitest related --run {staged_files}
 
 pre-push:
   parallel: true
@@ -32,7 +32,7 @@ pre-push:
           exit 1
         fi
     - name: lint-dead-code
-      run: mise exec -- pnpm lint:dead-code
+      run: pnpm lint:dead-code
     - name: lint-workflows
       glob:
         - ".github/**"
