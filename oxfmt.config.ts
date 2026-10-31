@@ -35,6 +35,9 @@ export default defineConfig({
   jsdoc: {
     lineWrappingStyle: "balance",
   },
+  // Replaces the preset's sortTailwindcss, dropping its class-merging
+  // functions (cn, clsx, cva, ...). Nothing uses them yet; add `functions` here
+  // once one is introduced
   sortTailwindcss: {
     stylesheet: "./src/lib/styles/globals.css",
   },
