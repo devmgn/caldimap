@@ -46,7 +46,7 @@
     "@electric-sql/pglite": "0.5.13",
     "@next/env": "16.4.3",
     "@oxlint/plugins": "1.90.0",
-    "@playwright/mcp": "0.0.83",
+    "@playwright/mcp": "0.0.84",
     "@storybook/addon-a11y": "10.6.5",
     "@storybook/addon-docs": "10.6.5",
     "@storybook/addon-mcp": "10.6.5",
