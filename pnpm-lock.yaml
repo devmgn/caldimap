@@ -318,8 +318,8 @@ importers:
         specifier: 1.90.0
         version: 1.90.0(oxlint-tsgolint@7.0.2005)
       oxlint-plugin-react-doctor:
-        specifier: 0.9.18
-        version: 0.9.18
+        specifier: 0.9.22
+        version: 0.9.22
       oxlint-tsgolint:
         specifier: 7.0.2005
         version: 7.0.2005
