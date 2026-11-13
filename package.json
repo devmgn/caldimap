@@ -43,7 +43,7 @@
     "zod": "4.6.7"
   },
   "devDependencies": {
-    "@electric-sql/pglite": "0.5.15",
+    "@electric-sql/pglite": "0.5.16",
     "@next/env": "16.4.5",
     "@oxlint/plugins": "1.91.0",
     "@playwright/mcp": "0.0.84",
