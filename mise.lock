@@ -130,10 +130,10 @@ checksum = "sha256:e2edda75bfb089654705cf65a13b58933bfd5f57148e8ebda916f58a2474f
 url = "https://nodejs.org/dist/v26.13.1/node-v26.13.1-win-x64.zip"
 
 [[tools."npm:skills"]]
-version = "1.7.6"
-aube = { path = ".mise/locks/npm-skills/1.7.6", digest = "sha256:217c1e2076b569495d2a0f30817b0adef33c8a15266bc9aa54990e0258ab75ef" }
+version = "1.8.1"
+aube = { path = ".mise/locks/npm-skills/1.8.1", digest = "sha256:feea553339456325640178c34bc369c6eee4070ef960e95660a708c4ebb4e138" }
 backend = "npm:skills"
-specifiers = ["1.7.6"]
+specifiers = ["1.8.1"]
 
 [[tools.pnpm]]
 version = "12.18.0"
