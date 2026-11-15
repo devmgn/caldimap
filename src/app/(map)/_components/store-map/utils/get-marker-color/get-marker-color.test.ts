@@ -5,7 +5,7 @@ import { getMarkerColor } from "./get-marker-color";
 const NOW = new Date(2026, 9, 24, 12);
 
 function sale(type: string, startDate: string, endDate: string) {
-  return { type, status: "", startDate, endDate, detail: "" };
+  return { type, startDate, endDate, status: "", detail: "" };
 }
 
 const RUNNING = ["2026-10-20", "2026-10-26"] as const;

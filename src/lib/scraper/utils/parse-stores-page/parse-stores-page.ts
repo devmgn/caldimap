@@ -83,9 +83,9 @@ export function parseStoresPage($: CheerioAPI): RawStore[] {
 
     seenIds.add(link.id);
     stores.push({
-      id: link.id,
       name,
       address,
+      id: link.id,
       url: link.url,
       services: parseServiceIcons($, $(row)),
     });
