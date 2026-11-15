@@ -24,13 +24,13 @@ const RUNNING_SALE: Sale = {
 function store(id: string, lat: number, lng: number, sales: Sale[]): Store {
   return {
     id,
-    name: `店舗${id}`,
-    address: "",
     lat,
     lng,
+    sales,
+    name: `店舗${id}`,
+    address: "",
     url: "",
     services: [],
-    sales,
   };
 }
 

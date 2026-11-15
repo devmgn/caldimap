@@ -25,7 +25,7 @@ function store(id: string, saleTypes: string[]): Store {
 }
 
 function sale(type: string, startDate: string, endDate: string): Sale {
-  return { type, status: "", startDate, endDate, detail: "" };
+  return { type, startDate, endDate, status: "", detail: "" };
 }
 
 function storeWith(id: string, sales: Sale[]): Store {

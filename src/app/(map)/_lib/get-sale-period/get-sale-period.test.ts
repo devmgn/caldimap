@@ -5,7 +5,7 @@ import { getSalePeriod } from "./get-sale-period";
 const NOW = new Date(2026, 9, 24, 12);
 
 function sale(startDate: string, endDate: string) {
-  return { type: "", status: "", startDate, endDate, detail: "" };
+  return { startDate, endDate, type: "", status: "", detail: "" };
 }
 
 describe(getSalePeriod, () => {
