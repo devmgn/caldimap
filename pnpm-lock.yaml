@@ -327,8 +327,8 @@ importers:
         specifier: 1.93.0
         version: 1.93.0(oxlint-tsgolint@7.0.2007)
       oxlint-plugin-react-doctor:
-        specifier: 0.9.22
-        version: 0.9.22
+        specifier: 0.9.23
+        version: 0.9.23
       oxlint-tsgolint:
         specifier: 7.0.2007
         version: 7.0.2007
