@@ -69,7 +69,7 @@
     "eslint-plugin-drizzle": "0.2.3",
     "eslint-plugin-github": "6.1.2",
     "eslint-plugin-jsdoc": "65.5.4",
-    "eslint-plugin-sonarjs": "4.2.2",
+    "eslint-plugin-sonarjs": "4.2.3",
     "eslint-plugin-storybook": "10.6.8",
     "eslint-plugin-tsdoc": "0.5.4",
     "fallow": "3.44.0",
