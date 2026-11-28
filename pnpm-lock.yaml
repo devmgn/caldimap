@@ -189,7 +189,7 @@ importers:
         version: 4.4.0
       drizzle-orm:
         specifier: 0.45.4
-        version: 0.45.4(@electric-sql/pglite@0.5.17)(@opentelemetry/api@1.9.1)(postgres@4.1.1)
+        version: 0.45.4(@electric-sql/pglite@0.6.0)(@opentelemetry/api@1.9.1)(postgres@4.1.1)
       leaflet:
         specifier: 1.9.4
         version: 1.9.4
@@ -219,8 +219,8 @@ importers:
         version: 4.6.7
     devDependencies:
       '@electric-sql/pglite':
-        specifier: 0.5.17
-        version: 0.5.17
+        specifier: 0.6.0
+        version: 0.6.0
       '@next/env':
         specifier: 16.4.6
         version: 16.4.6
@@ -497,8 +497,8 @@ packages:
   '@dual-bundle/import-meta-resolve@4.2.1':
     resolution: {integrity: sha512-id+7YRUgoUX6CgV0DtuhirQWodeeA7Lf4i2x71JS/vtA5pRb/hIGWlw+G6MeXvsM+MXrz0VAydTGElX1rAfgPg==}
 
-  '@electric-sql/pglite@0.5.17':
-    resolution: {integrity: sha512-8SvKjiUjaU+0O0dbxjOfN+jXz14TEqDWbwDkYOW1aQ11y/ph2JvFVI27ABBo5nfw+ZfSqy4hKCNlbnbB1TDE+g==}
+  '@electric-sql/pglite@0.6.0':
+    resolution: {integrity: sha512-g3tAPFjRLEdN1g5FvawTl4ETo9LtmVwBRUJYnH6Erl6mhlKFRGB2mYhPABffIuXMYxki64mX0Al8U4UFUhuYDQ==}
 
   '@emnapi/core@1.11.0':
     resolution: {integrity: sha512-l9Oo58x0HOP5znGzVhYW9U3e5wVuA4LAZU2AGezTmkhO1CgQRFDhDg4nneHsu/t3WniXg9QrG2nIXL/ZS8ln8Q==}
@@ -6431,7 +6431,7 @@ snapshots:
 
   '@dual-bundle/import-meta-resolve@4.2.1': {}
 
-  '@electric-sql/pglite@0.5.17': {}
+  '@electric-sql/pglite@0.6.0': {}
 
   '@emnapi/core@1.11.0':
     dependencies:
@@ -9099,9 +9099,9 @@ snapshots:
       esbuild: 0.25.12
       tsx: 4.23.15
 
-  drizzle-orm@0.45.4(@electric-sql/pglite@0.5.17)(@opentelemetry/api@1.9.1)(postgres@4.1.1):
+  drizzle-orm@0.45.4(@electric-sql/pglite@0.6.0)(@opentelemetry/api@1.9.1)(postgres@4.1.1):
     optionalDependencies:
-      '@electric-sql/pglite': 0.5.17
+      '@electric-sql/pglite': 0.6.0
       '@opentelemetry/api': 1.9.1
       postgres: 4.1.1
 
